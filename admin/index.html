@@ -825,6 +825,7 @@
     }
 
     let activeTplJob = null;
+    let activeTplType = 'thanks';
 
     function openTplModal(job, defaultType = 'thanks') {
       activeTplJob = job;
@@ -844,6 +845,7 @@
 
     function selectTplType(type) {
       if (!activeTplJob) return;
+      activeTplType = type;
       ['quote', 'thanks'].forEach(t => {
         const b = document.getElementById(`tpl-btn-${t}`);
         b.className = t === type
@@ -869,8 +871,28 @@
       const phone = (activeTplJob.customer_phone || '').replace(/\D/g, '');
 
       if (channel === 'email') {
+        let toEmail = (activeTplJob.customer_email || '').trim();
+        if (!toEmail) {
+          toEmail = (prompt('Correo electrónico del cliente:', '') || '').trim();
+          if (!toEmail) return;
+        }
+        const reviewLink = document.getElementById('google-review-url').value.trim() || 'https://dgtowingllc.com';
+        try {
+          const res = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to: toEmail, type: activeTplType, job: activeTplJob, reviewLink })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            alert(`✓ Email HTML enviado a ${toEmail}`);
+            closeTplModal();
+            return;
+          }
+          alert(data.error || 'No se pudo enviar vía API, abriendo app de correo...');
+        } catch (e) {}
         const subject = encodeURIComponent(`DG Towing LLC — ${activeTplJob.vehicle}`);
-        window.location.href = `mailto:${activeTplJob.customer_email || ''}?subject=${subject}&body=${encodeURIComponent(msg)}`;
+        window.location.href = `mailto:${toEmail}?subject=${subject}&body=${encodeURIComponent(msg)}`;
         return;
       }
 
