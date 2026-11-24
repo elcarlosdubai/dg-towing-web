@@ -751,8 +751,12 @@
         resetFormAndClose();
         await fetchJobs();
         if (sendWAAfter) sendReceipt(payload);
+      } else if (res.status === 401) {
+        alert('Tu sesión expiró. Vuelve a iniciar sesión.');
+        logout();
       } else {
-        alert('Error guardando el registro.');
+        const errData = await res.json().catch(() => ({}));
+        alert('Error guardando en Supabase: ' + (errData.message || errData.error || res.status));
       }
       btn.textContent = 'Guardar Registro';
     }
