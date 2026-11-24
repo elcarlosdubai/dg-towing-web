@@ -58,10 +58,26 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <button type="button" onclick="openJobModal()" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-royal hover:bg-blue-800 text-white text-xs font-bold shadow-sm transition">
-            + Agregar
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 relative">
+          <button type="button" onclick="togglePlusMenu()" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-royal hover:bg-blue-800 text-white text-xs font-bold shadow-sm transition">
+            + Nuevo
           </button>
+          <div id="plus-menu" class="hidden absolute right-0 top-12 w-52 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 space-y-1">
+            <button type="button" onclick="openJobModal('quote')" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-ice text-xs font-bold text-navy flex items-center gap-2">
+              <span>💬</span>
+              <div>
+                <div class="text-royal">Cotizar Cliente</div>
+                <div class="text-[10px] font-normal text-slate-500">Te llamó o pidió precio</div>
+              </div>
+            </button>
+            <button type="button" onclick="openJobModal('ride')" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-ice text-xs font-bold text-navy flex items-center gap-2">
+              <span>✅</span>
+              <div>
+                <div class="text-navy">Agregar Ride</div>
+                <div class="text-[10px] font-normal text-slate-500">Registrar viaje realizado</div>
+              </div>
+            </button>
+          </div>
           <button type="button" onclick="openBaileysModal()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
             WA QR
           </button>
@@ -211,44 +227,96 @@
     </main>
   </div>
 
-  <!-- MODAL: ADD NEW QUOTE / SERVICE -->
+  <!-- MODAL: ADD NEW QUOTE / RIDE -->
   <div id="job-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 my-6">
       <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
         <div>
-          <h3 class="font-bold text-lg text-navy">Agregar Cotización / Servicio</h3>
-          <p class="text-xs text-slate-500">Registra un cliente nuevo y calcula su tarifa</p>
+          <h3 id="modal-title" class="font-bold text-lg text-navy">Agregar Cotización / Servicio</h3>
+          <p id="modal-subtitle" class="text-xs text-slate-500">Registra los datos del cliente y tarifa</p>
         </div>
         <button type="button" onclick="closeJobModal()" class="w-8 h-8 rounded-full bg-slate-100 text-navy font-bold text-sm">✕</button>
       </div>
 
       <form id="job-form" class="space-y-3">
+        <!-- First Name & Last Name SEPARATE -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <input type="text" id="f-first" required placeholder="Nombre *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+          <input type="text" id="f-last" placeholder="Apellido" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <input type="text" id="f-name" required placeholder="Nombre y Apellido *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
           <input type="tel" id="f-phone" oninput="formatPhoneDash(this)" maxlength="12" placeholder="Tel: 347-323-3895" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+          <input type="email" id="f-email" placeholder="Email (opcional)" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
         </div>
 
-        <input type="email" id="f-email" placeholder="Correo electrónico (opcional)" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
-
-        <input type="text" id="f-vehicle" required placeholder="Vehículo (Ej. 2020 Honda Accord) *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
-
+        <!-- Service Type & Vehicle -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <input type="text" id="f-pickup" required oninput="autoCalcAdmin()" placeholder="Pickup (Ciudad/Calle) *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
-          <input type="text" id="f-dest" required oninput="autoCalcAdmin()" placeholder="Destino *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+          <select id="f-service" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm font-semibold text-navy focus:ring-2 focus:ring-royal focus:outline-none">
+            <option value="Towing / Grúa">🚛 Towing / Grúa</option>
+            <option value="Jump Start">⚡ Jump Start (Batería)</option>
+            <option value="Dealer / Subasta">🏢 Dealer / Subasta</option>
+            <option value="Long Distance">🛣️ Long Distance</option>
+            <option value="Tire / Roadside">🔧 Tire / Roadside</option>
+            <option value="Accident Recovery">🚨 Accident Recovery</option>
+          </select>
+          <input type="text" id="f-vehicle" required placeholder="Vehículo (Ej. 2020 Accord) *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
         </div>
 
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Millas</label>
-            <input type="number" id="f-miles" value="5" min="0" step="1" oninput="recalcTotalFromMiles()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold" />
+        <!-- Pickup with optional GPS & Phone Map -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[10px] font-bold uppercase text-slate-500">Pickup (Recogida)</label>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="adminDetectGPS()" class="text-[11px] font-bold text-royal hover:underline">📍 Mi GPS</button>
+              <button type="button" onclick="openMapSearch('f-pickup')" class="text-[11px] font-bold text-slate-600 hover:text-royal">🗺️ Mapa</button>
+            </div>
           </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Extra ($)</label>
-            <input type="number" id="f-extra" value="0" min="0" step="5" oninput="recalcTotalFromMiles()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold" />
+          <input type="text" id="f-pickup" list="admin-cities" required oninput="autoCalcAdmin()" placeholder="Ciudad, calle o coordenadas GPS *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+
+        <!-- Destination with optional Phone Map -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[10px] font-bold uppercase text-slate-500">Destino (Opcional en Jump Start)</label>
+            <button type="button" onclick="openMapSearch('f-dest')" class="text-[11px] font-bold text-slate-600 hover:text-royal">🗺️ Buscar en Mapa</button>
           </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-royal mb-1">Total ($)</label>
-            <input type="number" id="f-total" value="80" min="0" step="1" required class="w-full px-3 py-2 rounded-xl bg-ice border border-blue-300 text-sm font-extrabold text-royal" />
+          <input type="text" id="f-dest" list="admin-cities" oninput="autoCalcAdmin()" placeholder="Ciudad, taller o N/A si es Jump Start" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+
+        <datalist id="admin-cities">
+          <option value="Waterbury, CT"><option value="Naugatuck, CT"><option value="Bristol, CT"><option value="Hartford, CT"><option value="New Haven, CT"><option value="Danbury, CT"><option value="Bridgeport, CT"><option value="Bronx, NY"><option value="New York, NY"><option value="Newark, NJ"><option value="Boston, MA"><option value="Philadelphia, PA">
+        </datalist>
+
+        <!-- Flexible Pricing: Per Mile (custom $/mi) OR Flat Trip Price -->
+        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Modo de Cobro</span>
+            <div class="flex gap-1">
+              <button type="button" onclick="setPriceMode('mile')" id="pm-mile" class="px-2.5 py-1 rounded-lg bg-royal text-white text-[11px] font-bold">Por Milla ($/mi)</button>
+              <button type="button" onclick="setPriceMode('flat')" id="pm-flat" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] font-bold">Viaje Fijo ($)</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2">
+            <div id="mile-inputs" class="col-span-3 grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Millas</label>
+                <input type="number" id="f-miles" value="10" min="0" step="1" oninput="recalcTotalFromMiles()" class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">$/Milla</label>
+                <input type="number" id="f-rate" value="5" min="0" step="0.5" oninput="recalcTotalFromMiles()" class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Extra ($)</label>
+                <input type="number" id="f-extra" value="0" min="0" step="5" oninput="recalcTotalFromMiles()" class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+              </div>
+            </div>
+            <div id="total-col" class="col-span-1">
+              <label class="block text-[10px] font-bold uppercase text-royal mb-1">Total ($)</label>
+              <input type="number" id="f-total" value="80" min="0" step="1" required class="w-full px-2.5 py-2 rounded-xl bg-ice border border-blue-300 text-sm font-extrabold text-royal" />
+            </div>
           </div>
         </div>
 
@@ -274,11 +342,16 @@
           </div>
         </div>
 
-        <input type="text" id="f-notes" placeholder="Notas (ej. sin llaves, peaje...)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none" />
+        <input type="text" id="f-notes" placeholder="Notas (ej. dealer, sin llaves, peaje...)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none" />
 
-        <button type="submit" id="save-job-btn" class="w-full py-3.5 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-sm shadow-md transition">
-          Guardar Cliente y Servicio
-        </button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <button type="submit" id="save-job-btn" class="w-full py-3.5 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-sm shadow-md transition">
+            Guardar Registro
+          </button>
+          <button type="button" onclick="saveAndSendWhatsApp()" class="w-full py-3.5 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-sm shadow-md transition">
+            Guardar y Enviar WA
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -311,7 +384,7 @@
   <!-- MOBILE BOTTOM QUICK BAR -->
   <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-2 flex items-center justify-around text-[11px] font-bold">
     <button type="button" onclick="switchTab('dashboard')" class="flex flex-col items-center text-navy"><span>📊</span><span>Resumen</span></button>
-    <button type="button" onclick="openJobModal()" class="px-4 py-2 rounded-full bg-royal text-white shadow">+ Agregar</button>
+    <button type="button" onclick="togglePlusMenu()" class="px-4 py-2 rounded-full bg-royal text-white shadow">+ Nuevo</button>
     <button type="button" onclick="switchTab('rides')" class="flex flex-col items-center text-navy"><span>🚗</span><span>Rides</span></button>
     <button type="button" onclick="switchTab('customers')" class="flex flex-col items-center text-navy"><span>👥</span><span>Clientes</span></button>
   </div>
@@ -362,8 +435,73 @@
       });
     }
 
-    function openJobModal() { document.getElementById('job-modal').classList.remove('hidden'); }
+    let priceMode = 'mile';
+
+    function togglePlusMenu() {
+      document.getElementById('plus-menu').classList.toggle('hidden');
+    }
+
+    function openJobModal(mode = 'ride') {
+      document.getElementById('plus-menu').classList.add('hidden');
+      const titleEl = document.getElementById('modal-title');
+      const subEl = document.getElementById('modal-subtitle');
+      const statusEl = document.getElementById('f-status');
+
+      if (mode === 'quote') {
+        titleEl.textContent = '💬 Nueva Cotización';
+        subEl.textContent = 'Para cliente que llamó o pidió precio';
+        statusEl.value = 'Quote';
+      } else {
+        titleEl.textContent = '✅ Agregar Ride / Servicio';
+        subEl.textContent = 'Registra un viaje realizado o en curso';
+        statusEl.value = 'Completed';
+      }
+      document.getElementById('job-modal').classList.remove('hidden');
+    }
+
     function closeJobModal() { document.getElementById('job-modal').classList.add('hidden'); }
+
+    function setPriceMode(mode) {
+      priceMode = mode;
+      const mileBox = document.getElementById('mile-inputs');
+      const totalCol = document.getElementById('total-col');
+      const btnMile = document.getElementById('pm-mile');
+      const btnFlat = document.getElementById('pm-flat');
+
+      if (mode === 'flat') {
+        mileBox.classList.add('hidden');
+        totalCol.classList.remove('col-span-1');
+        totalCol.classList.add('col-span-4');
+        btnFlat.className = 'px-2.5 py-1 rounded-lg bg-royal text-white text-[11px] font-bold';
+        btnMile.className = 'px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] font-bold';
+      } else {
+        mileBox.classList.remove('hidden');
+        totalCol.classList.remove('col-span-4');
+        totalCol.classList.add('col-span-1');
+        btnMile.className = 'px-2.5 py-1 rounded-lg bg-royal text-white text-[11px] font-bold';
+        btnFlat.className = 'px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] font-bold';
+        recalcTotalFromMiles();
+      }
+    }
+
+    function adminDetectGPS() {
+      if (!navigator.geolocation) return;
+      const input = document.getElementById('f-pickup');
+      input.value = 'Detectando GPS...';
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude.toFixed(5);
+          const lng = pos.coords.longitude.toFixed(5);
+          input.value = `GPS: ${lat}, ${lng}`;
+        },
+        () => { input.value = ''; alert('No se pudo obtener el GPS.'); }
+      );
+    }
+
+    function openMapSearch(fieldId) {
+      const val = document.getElementById(fieldId).value.trim() || 'Waterbury, CT';
+      window.open(`https://maps.google.com/?q=${encodeURIComponent(val)}`, '_blank');
+    }
     function openBaileysModal() {
       document.getElementById('baileys-url').value = localStorage.getItem('dg_baileys_url') || '';
       document.getElementById('baileys-modal').classList.remove('hidden');
@@ -401,19 +539,19 @@
     }
 
     function recalcTotalFromMiles() {
+      if (priceMode === 'flat') return;
       const miles = parseFloat(document.getElementById('f-miles').value) || 0;
+      const rate = parseFloat(document.getElementById('f-rate').value) || 0;
       const extra = parseFloat(document.getElementById('f-extra').value) || 0;
-      const pLower = document.getElementById('f-pickup').value.toLowerCase();
-      const dLower = document.getElementById('f-dest').value.toLowerCase();
-      const hasWaterbury = pLower.includes('waterbury') || dLower.includes('waterbury');
 
-      let base = 80;
-      if (hasWaterbury && (pLower.includes('bristol') || dLower.includes('bristol'))) base = 115;
-      else if (hasWaterbury && (pLower.includes('new haven') || dLower.includes('new haven'))) base = 170;
-      else if (hasWaterbury && (pLower.includes('bronx') || dLower.includes('bronx') || pLower.includes('new york') || dLower.includes('new york'))) base = 500;
-      else if (miles > 8) base = 80 + (miles - 8) * 4.5;
-
-      document.getElementById('f-total').value = Math.round(base + extra);
+      // Uses custom $/mile if user changed it from default 5, otherwise respects base $80 up to 8 mi
+      let calc = 0;
+      if (rate === 5 && miles <= 8) {
+        calc = 80;
+      } else {
+        calc = miles * rate;
+      }
+      document.getElementById('f-total').value = Math.round(calc + extra);
     }
 
     function enterDemoMode() {
@@ -503,20 +641,27 @@
       renderCustomers();
     }
 
-    document.getElementById('job-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    async function saveJob(sendWAAfter = false) {
       const btn = document.getElementById('save-job-btn');
       btn.textContent = 'Guardando...';
 
+      const first = document.getElementById('f-first').value.trim();
+      const last = document.getElementById('f-last').value.trim();
+      const fullName = [first, last].filter(Boolean).join(' ') || 'Cliente Directo';
+
       const payload = {
-        customer_name: document.getElementById('f-name').value.trim() || 'Cliente Directo',
+        customer_name: fullName,
+        customer_first_name: first,
+        customer_last_name: last,
         customer_phone: document.getElementById('f-phone').value.trim(),
         customer_email: document.getElementById('f-email').value.trim(),
+        service_type: document.getElementById('f-service').value,
         vehicle: document.getElementById('f-vehicle').value.trim(),
         pickup: document.getElementById('f-pickup').value.trim(),
-        destination: document.getElementById('f-dest').value.trim(),
-        miles: parseFloat(document.getElementById('f-miles').value) || 0,
-        extra_fee: parseFloat(document.getElementById('f-extra').value) || 0,
+        destination: document.getElementById('f-dest').value.trim() || 'N/A',
+        miles: priceMode === 'flat' ? 0 : (parseFloat(document.getElementById('f-miles').value) || 0),
+        rate_per_mile: priceMode === 'flat' ? 0 : (parseFloat(document.getElementById('f-rate').value) || 0),
+        extra_fee: priceMode === 'flat' ? 0 : (parseFloat(document.getElementById('f-extra').value) || 0),
         total_price: parseFloat(document.getElementById('f-total').value) || 0,
         payment_method: document.getElementById('f-payment').value,
         status: document.getElementById('f-status').value,
@@ -527,7 +672,8 @@
         allJobs.unshift({ id: String(Date.now()), created_at: new Date().toISOString(), ...payload });
         resetFormAndClose();
         refreshUI();
-        btn.textContent = 'Guardar Cliente y Servicio';
+        btn.textContent = 'Guardar Registro';
+        if (sendWAAfter) sendReceipt(payload);
         return;
       }
 
@@ -540,15 +686,28 @@
       if (res.ok) {
         resetFormAndClose();
         await fetchJobs();
+        if (sendWAAfter) sendReceipt(payload);
       } else {
         alert('Error guardando el registro.');
       }
-      btn.textContent = 'Guardar Cliente y Servicio';
+      btn.textContent = 'Guardar Registro';
+    }
+
+    document.getElementById('job-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveJob(false);
     });
+
+    async function saveAndSendWhatsApp() {
+      const form = document.getElementById('job-form');
+      if (!form.reportValidity()) return;
+      await saveJob(true);
+    }
 
     function resetFormAndClose() {
       document.getElementById('job-form').reset();
-      document.getElementById('f-miles').value = 5;
+      document.getElementById('f-miles').value = 10;
+      document.getElementById('f-rate').value = 5;
       document.getElementById('f-extra').value = 0;
       document.getElementById('f-total').value = 80;
       closeJobModal();
@@ -737,6 +896,7 @@
           <div class="space-y-1 min-w-0">
             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${badgeColor}">${j.status}</span>
+              ${j.service_type ? `<span class="px-2 py-0.5 rounded-full bg-slate-200/70 text-navy text-[10px] font-bold">${j.service_type}</span>` : ''}
               <span class="font-bold text-sm text-navy">${j.customer_name || 'Web Lead'}</span>
               ${j.customer_phone ? `<a href="tel:${j.customer_phone}" class="text-xs font-semibold text-royal hover:underline">${j.customer_phone}</a>` : ''}
               ${j.customer_email ? `<span class="text-xs text-slate-500 break-all">• ${j.customer_email}</span>` : ''}

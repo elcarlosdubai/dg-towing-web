@@ -7,12 +7,16 @@ CREATE TABLE IF NOT EXISTS public.dg_towing_jobs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   customer_name TEXT DEFAULT 'Web Lead',
+  customer_first_name TEXT DEFAULT '',
+  customer_last_name TEXT DEFAULT '',
   customer_phone TEXT DEFAULT '',
   customer_email TEXT DEFAULT '',
+  service_type TEXT DEFAULT 'Towing',
   vehicle TEXT NOT NULL,
   pickup TEXT NOT NULL,
   destination TEXT NOT NULL,
   miles NUMERIC DEFAULT 0,
+  rate_per_mile NUMERIC DEFAULT 0,
   estimated_range TEXT DEFAULT '',
   extra_fee NUMERIC DEFAULT 0,
   total_price NUMERIC DEFAULT 0,
@@ -22,6 +26,10 @@ CREATE TABLE IF NOT EXISTS public.dg_towing_jobs (
 );
 
 ALTER TABLE public.dg_towing_jobs ADD COLUMN IF NOT EXISTS customer_email TEXT DEFAULT '';
+ALTER TABLE public.dg_towing_jobs ADD COLUMN IF NOT EXISTS customer_first_name TEXT DEFAULT '';
+ALTER TABLE public.dg_towing_jobs ADD COLUMN IF NOT EXISTS customer_last_name TEXT DEFAULT '';
+ALTER TABLE public.dg_towing_jobs ADD COLUMN IF NOT EXISTS service_type TEXT DEFAULT 'Towing';
+ALTER TABLE public.dg_towing_jobs ADD COLUMN IF NOT EXISTS rate_per_mile NUMERIC DEFAULT 0;
 
 -- Activar Row Level Security (Seguridad)
 ALTER TABLE public.dg_towing_jobs ENABLE ROW LEVEL SECURITY;

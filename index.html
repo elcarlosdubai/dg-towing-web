@@ -219,11 +219,12 @@
 
           </div>
 
-          <!-- Compact Customer Contact Row (Full Name, Dashed Phone, Email) -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-3 pt-3 border-t border-slate-100">
-            <input type="text" id="cust-name" aria-label="Full Name" placeholder="Full Name (First &amp; Last)" data-placeholder-en="Full Name (First &amp; Last)" data-placeholder-es="Nombre y Apellido" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
-            <input type="tel" id="cust-phone" oninput="formatPhoneDash(this)" maxlength="12" aria-label="Phone Number" placeholder="Phone (e.g. 347-323-3895)" data-placeholder-en="Phone (e.g. 347-323-3895)" data-placeholder-es="Teléfono (Ej. 347-323-3895)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
-            <input type="email" id="cust-email" aria-label="Email Address" placeholder="Email (for receipt/quote)" data-placeholder-en="Email (for receipt/quote)" data-placeholder-es="Correo electrónico (opcional)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+          <!-- Compact Customer Contact Row (First Name, Last Name, Dashed Phone, Email) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mt-3 pt-3 border-t border-slate-100">
+            <input type="text" id="cust-first" aria-label="First Name" placeholder="First Name" data-placeholder-en="First Name" data-placeholder-es="Nombre" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            <input type="text" id="cust-last" aria-label="Last Name" placeholder="Last Name" data-placeholder-en="Last Name" data-placeholder-es="Apellido" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            <input type="tel" id="cust-phone" oninput="formatPhoneDash(this)" maxlength="12" aria-label="Phone Number" placeholder="Phone (347-323-3895)" data-placeholder-en="Phone (347-323-3895)" data-placeholder-es="Teléfono (347-323-3895)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            <input type="email" id="cust-email" aria-label="Email Address" placeholder="Email (optional)" data-placeholder-en="Email (optional)" data-placeholder-es="Correo (opcional)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
           </div>
 
           <datalist id="ct-cities">
@@ -786,7 +787,9 @@
       const pickup = document.getElementById('pickup').value.trim();
       const destination = document.getElementById('destination').value.trim();
       const vehicle = document.getElementById('vehicle').value.trim();
-      const custName = (document.getElementById('cust-name')?.value || '').trim();
+      const custFirst = (document.getElementById('cust-first')?.value || '').trim();
+      const custLast = (document.getElementById('cust-last')?.value || '').trim();
+      const custName = [custFirst, custLast].filter(Boolean).join(' ');
       const custPhone = (document.getElementById('cust-phone')?.value || '').trim();
       const custEmail = (document.getElementById('cust-email')?.value || '').trim();
 
@@ -812,8 +815,11 @@
           },
           body: JSON.stringify({
             customer_name: custName || 'Web Lead (' + channel.toUpperCase() + ')',
+            customer_first_name: custFirst,
+            customer_last_name: custLast,
             customer_phone: custPhone,
             customer_email: custEmail,
+            service_type: 'Towing',
             vehicle: vehicleInfo,
             pickup: pickup,
             destination: destination,
