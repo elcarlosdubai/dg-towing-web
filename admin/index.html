@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DG Towing LLC — Admin Dispatch &amp; CRM</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/jpeg" href="../logo.jpeg" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="bg-ice text-navy antialiased min-h-screen">
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-3xl p-7 sm:p-9 shadow-xl border border-slate-200">
+      <div class="flex flex-col items-center text-center mb-6">
+        <img src="../logo.jpeg" alt="DG Towing LLC" class="h-16 w-auto object-contain mb-3" />
+        <h1 class="font-bold text-2xl text-navy">DG Towing Admin</h1>
+        <p class="text-xs text-slate-500 mt-1">Panel de Control • Dispatch, Clientes &amp; Finanzas</p>
+      </div>
+
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="login-email" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Correo</label>
+          <input type="email" id="login-email" required placeholder="admin@dgtowingllc.com" class="w-full px-4 py-3 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+        <div>
+          <label for="login-password" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Contraseña</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+        <p id="login-error" class="hidden text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl"></p>
+        <button type="submit" id="login-btn" class="w-full py-3.5 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-sm shadow-md transition">
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD VIEW -->
+  <div id="app-view" class="hidden min-h-screen flex flex-col">
+
+    <!-- Top Navbar -->
+    <header class="sticky top-0 z-40 bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <img src="../logo.jpeg" alt="DG Towing LLC" class="h-10 w-auto object-contain" />
+          <div>
+            <span class="font-bold text-sm sm:text-base text-navy block leading-none">DG Towing CRM</span>
+            <span id="user-email-badge" class="text-[11px] text-slate-500"></span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a href="../index.html" target="_blank" class="px-3 py-2 rounded-full border border-slate-200 hover:border-royal text-xs font-semibold text-navy transition">
+            Ver Web
+          </a>
+          <button type="button" onclick="exportCSV()" class="px-3.5 py-2 rounded-full bg-ice hover:bg-blue-100 text-royal text-xs font-bold transition">
+            Exportar Excel
+          </button>
+          <button type="button" onclick="logout()" class="px-3.5 py-2 rounded-full bg-navy hover:bg-slate-800 text-white text-xs font-semibold transition">
+            Salir
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 flex-1">
+
+      <!-- 1. FINANCIAL SUMMARY CARDS -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Ganado Hoy</span>
+          <div id="stat-today" class="font-bold text-2xl sm:text-3xl text-navy mt-1">$0</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Este Mes</span>
+          <div id="stat-month" class="font-bold text-2xl sm:text-3xl text-royal mt-1">$0</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Completados</span>
+          <div id="stat-completed" class="font-bold text-2xl sm:text-3xl text-navy mt-1">0</div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Cotizaciones Web</span>
+          <div id="stat-quotes" class="font-bold text-2xl sm:text-3xl text-royal mt-1">0</div>
+        </div>
+      </section>
+
+      <!-- Payment Breakdown Strip -->
+      <section class="bg-navy text-white rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
+        <span class="font-bold text-blue-300 uppercase tracking-wider text-xs">Ingresos por Método (Completados):</span>
+        <div class="flex flex-wrap items-center gap-4 sm:gap-6 font-semibold">
+          <span>Apple Cash: <strong id="pay-apple" class="text-white">$0</strong></span>
+          <span>Cash: <strong id="pay-cash" class="text-white">$0</strong></span>
+          <span>Zelle: <strong id="pay-zelle" class="text-white">$0</strong></span>
+          <span>PayPal: <strong id="pay-paypal" class="text-white">$0</strong></span>
+        </div>
+      </section>
+
+      <!-- MAIN GRID: NEW JOB FORM (Left) + JOBS DATABASE (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- 2. ADD NEW JOB / CALCULATOR PRO -->
+        <section class="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <h2 class="font-bold text-lg text-navy">Registrar Servicio</h2>
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-ice text-royal">$80 Base</span>
+          </div>
+
+          <form id="job-form" class="space-y-3">
+            <div class="grid grid-cols-2 gap-2.5">
+              <input type="text" id="f-name" placeholder="Nombre Cliente" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+              <input type="tel" id="f-phone" placeholder="Teléfono" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            </div>
+
+            <input type="text" id="f-vehicle" required placeholder="Vehículo (Ej. 2020 Honda Accord) *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <input type="text" id="f-pickup" required oninput="autoCalcAdmin()" placeholder="Pickup (Ciudad/Calle) *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+              <input type="text" id="f-dest" required oninput="autoCalcAdmin()" placeholder="Destino *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Millas</label>
+                <input type="number" id="f-miles" value="5" min="0" step="1" oninput="recalcTotalFromMiles()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Extra ($)</label>
+                <input type="number" id="f-extra" value="0" min="0" step="5" oninput="recalcTotalFromMiles()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-royal mb-1">Total ($)</label>
+                <input type="number" id="f-total" value="80" min="0" step="1" required class="w-full px-3 py-2 rounded-xl bg-ice border border-blue-300 text-sm font-extrabold text-royal" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Método de Pago</label>
+                <select id="f-payment" class="w-full px-3 py-2.5 rounded-xl bg-ice border border-slate-200 text-xs font-semibold">
+                  <option value="Pending">Pendiente</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Zelle">Zelle</option>
+                  <option value="Apple Cash">Apple Cash</option>
+                  <option value="PayPal">PayPal</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Estado</label>
+                <select id="f-status" class="w-full px-3 py-2.5 rounded-xl bg-ice border border-slate-200 text-xs font-semibold">
+                  <option value="Completed">Completado</option>
+                  <option value="En Route">En Camino</option>
+                  <option value="Pending">Pendiente</option>
+                  <option value="Quote">Cotización</option>
+                </select>
+              </div>
+            </div>
+
+            <input type="text" id="f-notes" placeholder="Notas (ej. sin llaves, peaje...)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none" />
+
+            <button type="submit" id="save-job-btn" class="w-full py-3.5 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-sm shadow-md transition">
+              + Guardar en Base de Datos
+            </button>
+          </form>
+        </section>
+
+        <!-- 3. JOBS & QUOTES DATABASE TABLE -->
+        <section class="lg:col-span-8 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h2 class="font-bold text-lg text-navy">Historial y Cotizaciones</h2>
+              <p class="text-xs text-slate-500">Cotizaciones web y servicios registrados</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="text" id="search-input" oninput="renderJobs()" placeholder="Buscar cliente, carro o ruta..." class="px-3.5 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+              <select id="filter-status" onchange="renderJobs()" class="px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs font-semibold">
+                <option value="ALL">Todos</option>
+                <option value="Quote">Cotizaciones Web</option>
+                <option value="Pending">Pendientes</option>
+                <option value="En Route">En Camino</option>
+                <option value="Completed">Completados</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="jobs-list" class="space-y-3">
+            <p class="text-sm text-slate-500 py-8 text-center">Cargando registros...</p>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://iqnigpsrmfiiydxyietl.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_bQ8QtLiqktNlmpfBUzyDXg_gjn5JY2h';
+
+    let accessToken = localStorage.getItem('dg_access_token') || '';
+    let currentUserEmail = localStorage.getItem('dg_user_email') || '';
+    let allJobs = [];
+
+    const ctCoords = {
+      'waterbury': [41.5582, -73.0515],
+      'naugatuck': [41.4859, -73.0507],
+      'cheshire': [41.4989, -72.9007],
+      'bristol': [41.6718, -72.9493],
+      'southington': [41.5965, -72.8776],
+      'meriden': [41.5382, -72.8070],
+      'new britain': [41.6612, -72.7795],
+      'hartford': [41.7658, -72.6734],
+      'new haven': [41.3083, -72.9279],
+      'danbury': [41.3948, -73.4540],
+      'bridgeport': [41.1865, -73.1952],
+      'new york': [40.7128, -74.0060],
+      'bronx': [40.8448, -73.8648],
+      'queens': [40.7282, -73.7949],
+      'brooklyn': [40.6782, -73.9442],
+      'newark': [40.7357, -74.1724],
+      'boston': [42.3601, -71.0589],
+      'philadelphia': [39.9526, -75.1652]
+    };
+
+    function findCoords(text) {
+      const lower = text.toLowerCase();
+      for (const [city, coords] of Object.entries(ctCoords)) {
+        if (lower.includes(city)) return coords;
+      }
+      return null;
+    }
+
+    function autoCalcAdmin() {
+      const p = document.getElementById('f-pickup').value;
+      const d = document.getElementById('f-dest').value;
+      const c1 = findCoords(p);
+      const c2 = findCoords(d);
+      if (c1 && c2) {
+        const toRad = deg => deg * Math.PI / 180;
+        const R = 3958.8;
+        const dLat = toRad(c2[0] - c1[0]);
+        const dLon = toRad(c2[1] - c1[1]);
+        const a = Math.sin(dLat/2)**2 + Math.cos(toRad(c1[0])) * Math.cos(toRad(c2[0])) * Math.sin(dLon/2)**2;
+        const miles = Math.max(5, Math.round(2 * R * Math.asin(Math.sqrt(a)) * 1.25));
+        document.getElementById('f-miles').value = miles;
+        recalcTotalFromMiles();
+      }
+    }
+
+    function recalcTotalFromMiles() {
+      const miles = parseFloat(document.getElementById('f-miles').value) || 0;
+      const extra = parseFloat(document.getElementById('f-extra').value) || 0;
+      const pLower = document.getElementById('f-pickup').value.toLowerCase();
+      const dLower = document.getElementById('f-dest').value.toLowerCase();
+      const hasWaterbury = pLower.includes('waterbury') || dLower.includes('waterbury');
+
+      let base = 80;
+      if (hasWaterbury && (pLower.includes('bristol') || dLower.includes('bristol'))) {
+        base = 115;
+      } else if (hasWaterbury && (pLower.includes('new haven') || dLower.includes('new haven'))) {
+        base = 170;
+      } else if (hasWaterbury && (pLower.includes('bronx') || dLower.includes('bronx') || pLower.includes('new york') || dLower.includes('new york'))) {
+        base = 500;
+      } else if (miles > 8) {
+        base = 80 + (miles - 8) * 4.5;
+      }
+      document.getElementById('f-total').value = Math.round(base + extra);
+    }
+
+    // AUTHENTICATION
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      errEl.classList.add('hidden');
+      btn.textContent = 'Entrando...';
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error_description || data.msg || 'Credenciales incorrectas');
+
+        accessToken = data.access_token;
+        currentUserEmail = data.user.email;
+        localStorage.setItem('dg_access_token', accessToken);
+        localStorage.setItem('dg_user_email', currentUserEmail);
+        showApp();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.textContent = 'Iniciar Sesión';
+      }
+    });
+
+    function logout() {
+      accessToken = '';
+      localStorage.removeItem('dg_access_token');
+      localStorage.removeItem('dg_user_email');
+      document.getElementById('app-view').classList.add('hidden');
+      document.getElementById('login-view').classList.remove('hidden');
+    }
+
+    async function showApp() {
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+      document.getElementById('user-email-badge').textContent = currentUserEmail;
+      await fetchJobs();
+    }
+
+    // FETCH ALL JOBS
+    async function fetchJobs() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?select=*&order=created_at.desc`, {
+          headers: {
+            'apikey': SUPABASE_ANON,
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        if (res.status === 401) { logout(); return; }
+        allJobs = await res.json();
+        updateStats();
+        renderJobs();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // SAVE NEW JOB
+    document.getElementById('job-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('save-job-btn');
+      btn.textContent = 'Guardando...';
+
+      const payload = {
+        customer_name: document.getElementById('f-name').value.trim() || 'Cliente Directo',
+        customer_phone: document.getElementById('f-phone').value.trim(),
+        vehicle: document.getElementById('f-vehicle').value.trim(),
+        pickup: document.getElementById('f-pickup').value.trim(),
+        destination: document.getElementById('f-dest').value.trim(),
+        miles: parseFloat(document.getElementById('f-miles').value) || 0,
+        extra_fee: parseFloat(document.getElementById('f-extra').value) || 0,
+        total_price: parseFloat(document.getElementById('f-total').value) || 0,
+        payment_method: document.getElementById('f-payment').value,
+        status: document.getElementById('f-status').value,
+        notes: document.getElementById('f-notes').value.trim()
+      };
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        document.getElementById('job-form').reset();
+        document.getElementById('f-miles').value = 5;
+        document.getElementById('f-extra').value = 0;
+        document.getElementById('f-total').value = 80;
+        await fetchJobs();
+      } else {
+        alert('Error guardando el registro.');
+      }
+      btn.textContent = '+ Guardar en Base de Datos';
+    });
+
+    async function updateJobStatus(id, newStatus) {
+      await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      await fetchJobs();
+    }
+
+    async function updateJobPayment(id, method) {
+      await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ payment_method: method })
+      });
+      await fetchJobs();
+    }
+
+    async function deleteJob(id) {
+      if (!confirm('¿Eliminar este registro?')) return;
+      await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      await fetchJobs();
+    }
+
+    function sendReceipt(job) {
+      const msg = `DG Towing LLC - Recibo de Servicio\n• Cliente: ${job.customer_name}\n• Vehículo: ${job.vehicle}\n• Ruta: ${job.pickup} → ${job.destination}\n• Total: $${job.total_price} (${job.payment_method})\n¡Gracias por elegir DG Towing LLC!`;
+      const phone = (job.customer_phone || '').replace(/\D/g, '');
+      const url = phone ? `https://wa.me/1${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    function updateStats() {
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10);
+      const monthStr = now.toISOString().slice(0, 7);
+
+      let todaySum = 0, monthSum = 0, completedCount = 0, quotesCount = 0;
+      const pays = { 'Apple Cash': 0, 'Cash': 0, 'Zelle': 0, 'PayPal': 0 };
+
+      allJobs.forEach(j => {
+        if (j.status === 'Quote') quotesCount++;
+        if (j.status === 'Completed') {
+          completedCount++;
+          const price = Number(j.total_price) || 0;
+          if ((j.created_at || '').startsWith(todayStr)) todaySum += price;
+          if ((j.created_at || '').startsWith(monthStr)) monthSum += price;
+          if (pays[j.payment_method] !== undefined) pays[j.payment_method] += price;
+        }
+      });
+
+      document.getElementById('stat-today').textContent = `$${todaySum}`;
+      document.getElementById('stat-month').textContent = `$${monthSum}`;
+      document.getElementById('stat-completed').textContent = completedCount;
+      document.getElementById('stat-quotes').textContent = quotesCount;
+
+      document.getElementById('pay-apple').textContent = `$${pays['Apple Cash']}`;
+      document.getElementById('pay-cash').textContent = `$${pays['Cash']}`;
+      document.getElementById('pay-zelle').textContent = `$${pays['Zelle']}`;
+      document.getElementById('pay-paypal').textContent = `$${pays['PayPal']}`;
+    }
+
+    function renderJobs() {
+      const list = document.getElementById('jobs-list');
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const filter = document.getElementById('filter-status').value;
+
+      const filtered = allJobs.filter(j => {
+        const matchStatus = filter === 'ALL' || j.status === filter;
+        const text = `${j.customer_name} ${j.customer_phone} ${j.vehicle} ${j.pickup} ${j.destination}`.toLowerCase();
+        return matchStatus && text.includes(search);
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = '<p class="text-sm text-slate-500 py-8 text-center">No hay registros que coincidan.</p>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(j => {
+        const date = new Date(j.created_at).toLocaleDateString('es-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const badgeColor = j.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' : j.status === 'Quote' ? 'bg-ice text-royal' : 'bg-amber-50 text-amber-700';
+
+        return `
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${badgeColor}">${j.status}</span>
+                <span class="font-bold text-sm text-navy">${j.customer_name || 'Web Lead'}</span>
+                ${j.customer_phone ? `<a href="tel:${j.customer_phone}" class="text-xs font-semibold text-royal hover:underline">${j.customer_phone}</a>` : ''}
+                <span class="text-[11px] text-slate-400">• ${date}</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700">${j.vehicle}</div>
+              <div class="text-xs text-slate-600">${j.pickup} → ${j.destination} ${j.estimated_range ? `(${j.estimated_range})` : ''}</div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <span class="font-bold text-base text-navy mr-2">$${j.total_price || 0}</span>
+
+              <select onchange="updateJobPayment('${j.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
+                <option value="Pending" ${j.payment_method==='Pending'?'selected':''}>Pago...</option>
+                <option value="Cash" ${j.payment_method==='Cash'?'selected':''}>Cash</option>
+                <option value="Zelle" ${j.payment_method==='Zelle'?'selected':''}>Zelle</option>
+                <option value="Apple Cash" ${j.payment_method==='Apple Cash'?'selected':''}>Apple Cash</option>
+                <option value="PayPal" ${j.payment_method==='PayPal'?'selected':''}>PayPal</option>
+              </select>
+
+              <select onchange="updateJobStatus('${j.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
+                <option value="Quote" ${j.status==='Quote'?'selected':''}>Quote</option>
+                <option value="Pending" ${j.status==='Pending'?'selected':''}>Pending</option>
+                <option value="En Route" ${j.status==='En Route'?'selected':''}>En Route</option>
+                <option value="Completed" ${j.status==='Completed'?'selected':''}>Completed</option>
+              </select>
+
+              <button type="button" onclick='sendReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-[#16A34A] text-white text-xs font-bold" title="Enviar recibo por WhatsApp">WA</button>
+              <button type="button" onclick="deleteJob('${j.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold" title="Eliminar">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportCSV() {
+      const headers = ['Fecha', 'Cliente', 'Telefono', 'Vehiculo', 'Pickup', 'Destino', 'Millas', 'Total', 'Metodo Pago', 'Estado', 'Notas'];
+      const rows = allJobs.map(j => [
+        j.created_at, j.customer_name, j.customer_phone, j.vehicle, j.pickup, j.destination, j.miles, j.total_price, j.payment_method, j.status, j.notes
+      ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `dg-towing-report-${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+    }
+
+    if (accessToken) { showApp(); }
+  </script>
+</body>
+</html>

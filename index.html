@@ -781,6 +781,26 @@
       const encoded = encodeURIComponent(msg);
       const phone = '13473233895';
 
+      // Save lead silently to Supabase (non-blocking)
+      try {
+        fetch('https://iqnigpsrmfiiydxyietl.supabase.co/rest/v1/dg_towing_jobs', {
+          method: 'POST',
+          headers: {
+            'apikey': 'sb_publishable_bQ8QtLiqktNlmpfBUzyDXg_gjn5JY2h',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            customer_name: 'Web Lead (' + channel.toUpperCase() + ')',
+            vehicle: vehicleInfo,
+            pickup: pickup,
+            destination: destination,
+            estimated_range: lastEstimatedText,
+            status: 'Quote'
+          }),
+          keepalive: true
+        });
+      } catch (e) {}
+
       if (channel === 'whatsapp') {
         window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
       } else {

@@ -1,0 +1,55 @@
+-- ==========================================================
+-- DG TOWING LLC — Tablas exclusivas (No toca nada de URENA TAX)
+-- Pega y ejecuta esto en Supabase -> SQL Editor -> New Query
+-- ==========================================================
+
+CREATE TABLE IF NOT EXISTS public.dg_towing_jobs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  customer_name TEXT DEFAULT 'Web Lead',
+  customer_phone TEXT DEFAULT '',
+  vehicle TEXT NOT NULL,
+  pickup TEXT NOT NULL,
+  destination TEXT NOT NULL,
+  miles NUMERIC DEFAULT 0,
+  estimated_range TEXT DEFAULT '',
+  extra_fee NUMERIC DEFAULT 0,
+  total_price NUMERIC DEFAULT 0,
+  payment_method TEXT DEFAULT 'Pending',
+  status TEXT DEFAULT 'Quote',
+  notes TEXT DEFAULT ''
+);
+
+-- Activar Row Level Security (Seguridad)
+ALTER TABLE public.dg_towing_jobs ENABLE ROW LEVEL SECURITY;
+
+-- 1. Permitir que la web pública guarde nuevas cotizaciones (solo INSERT)
+DROP POLICY IF EXISTS "Public can insert web quotes" ON public.dg_towing_jobs;
+CREATE POLICY "Public can insert web quotes"
+  ON public.dg_towing_jobs
+  FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (status IN ('Quote', 'Pending', 'En Route', 'Completed', 'Cancelled'));
+
+-- 2. Solo el usuario autenticado (Dariel/Admin) puede ver, editar o borrar trabajos
+DROP POLICY IF EXISTS "Authenticated users can view jobs" ON public.dg_towing_jobs;
+CREATE POLICY "Authenticated users can view jobs"
+  ON public.dg_towing_jobs
+  FOR SELECT
+  TO authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can update jobs" ON public.dg_towing_jobs;
+CREATE POLICY "Authenticated users can update jobs"
+  ON public.dg_towing_jobs
+  FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Authenticated users can delete jobs" ON public.dg_towing_jobs;
+CREATE POLICY "Authenticated users can delete jobs"
+  ON public.dg_towing_jobs
+  FOR DELETE
+  TO authenticated
+  USING (true);
