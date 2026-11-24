@@ -382,10 +382,10 @@
       <textarea id="tpl-preview" rows="7" class="w-full p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-navy leading-relaxed focus:outline-none focus:ring-2 focus:ring-royal"></textarea>
 
       <div class="grid grid-cols-2 gap-2.5">
-        <button type="button" onclick="dispatchTpl('wa')" class="py-3 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-xs shadow transition">
+        <button type="button" id="tpl-send-wa" onclick="dispatchTpl('wa')" class="py-3 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-xs shadow transition">
           Enviar por WhatsApp
         </button>
-        <button type="button" onclick="dispatchTpl('email')" class="py-3 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-xs shadow transition">
+        <button type="button" id="tpl-send-email" onclick="dispatchTpl('email')" class="py-3 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-xs shadow transition">
           Enviar por Email
         </button>
       </div>
@@ -963,10 +963,12 @@
 
       if (channel === 'email') {
         let toEmail = (activeTplJob.customer_email || '').trim();
-        if (!toEmail) {
-          toEmail = (prompt('Correo electrónico del cliente:', '') || '').trim();
+        if (!toEmail || toEmail.endsWith('@email.com')) {
+          toEmail = (prompt('Correo electrónico del cliente:', toEmail.endsWith('@email.com') ? '' : toEmail) || '').trim();
           if (!toEmail) return;
         }
+        const btn = document.getElementById('tpl-send-email');
+        if (btn) { btn.textContent = 'Enviando Email...'; btn.disabled = true; }
         const reviewLink = document.getElementById('google-review-url').value.trim() || 'https://dgtowingllc.com';
         try {
           const res = await fetch('/api/send-email', {
@@ -981,7 +983,9 @@
             return;
           }
           alert(data.error || 'No se pudo enviar vía API, abriendo app de correo...');
-        } catch (e) {}
+        } catch (e) {} finally {
+          if (btn) { btn.textContent = 'Enviar por Email'; btn.disabled = false; }
+        }
         const subject = encodeURIComponent(`DG Towing LLC — ${activeTplJob.vehicle}`);
         window.location.href = `mailto:${toEmail}?subject=${subject}&body=${encodeURIComponent(msg)}`;
         return;
