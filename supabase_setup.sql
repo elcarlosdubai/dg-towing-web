@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.dg_towing_jobs (
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
   customer_name TEXT DEFAULT 'Web Lead',
   customer_phone TEXT DEFAULT '',
+  customer_email TEXT DEFAULT '',
   vehicle TEXT NOT NULL,
   pickup TEXT NOT NULL,
   destination TEXT NOT NULL,
@@ -19,6 +20,8 @@ CREATE TABLE IF NOT EXISTS public.dg_towing_jobs (
   status TEXT DEFAULT 'Quote',
   notes TEXT DEFAULT ''
 );
+
+ALTER TABLE public.dg_towing_jobs ADD COLUMN IF NOT EXISTS customer_email TEXT DEFAULT '';
 
 -- Activar Row Level Security (Seguridad)
 ALTER TABLE public.dg_towing_jobs ENABLE ROW LEVEL SECURITY;

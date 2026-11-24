@@ -58,7 +58,10 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <a href="../index.html" target="_blank" class="px-3 py-2 rounded-full border border-slate-200 hover:border-royal text-xs font-semibold text-navy transition">
+          <button type="button" onclick="openBaileysModal()" class="px-3.5 py-2 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
+            WhatsApp QR
+          </button>
+          <a href="../index.html" target="_blank" class="hidden sm:inline-block px-3 py-2 rounded-full border border-slate-200 hover:border-royal text-xs font-semibold text-navy transition">
             Ver Web
           </a>
           <button type="button" onclick="exportCSV()" class="px-3.5 py-2 rounded-full bg-ice hover:bg-blue-100 text-royal text-xs font-bold transition">
@@ -116,9 +119,11 @@
 
           <form id="job-form" class="space-y-3">
             <div class="grid grid-cols-2 gap-2.5">
-              <input type="text" id="f-name" placeholder="Nombre Cliente" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
-              <input type="tel" id="f-phone" placeholder="Teléfono" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+              <input type="text" id="f-name" placeholder="Nombre y Apellido" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+              <input type="tel" id="f-phone" oninput="formatPhoneDash(this)" maxlength="12" placeholder="Tel: 347-323-3895" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
             </div>
+
+            <input type="email" id="f-email" placeholder="Correo electrónico (opcional)" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
 
             <input type="text" id="f-vehicle" required placeholder="Vehículo (Ej. 2020 Honda Accord) *" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
 
@@ -202,6 +207,31 @@
     </main>
   </div>
 
+  <!-- BAILEYS WHATSAPP QR & EMAIL AUTOMATION MODAL -->
+  <div id="baileys-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-lg text-navy">WhatsApp Baileys (QR)</h3>
+          <p class="text-xs text-slate-500">Conecta tu servidor Node.js de Baileys para disparos automáticos</p>
+        </div>
+        <button type="button" onclick="closeBaileysModal()" class="w-8 h-8 rounded-full bg-slate-100 text-navy font-bold text-sm">✕</button>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-[11px] font-bold uppercase text-slate-500">URL Servidor Baileys (ej. http://localhost:3001 o tu VPS)</label>
+        <div class="flex gap-2">
+          <input type="url" id="baileys-url" placeholder="https://api-whatsapp.tudominio.com" class="flex-1 px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+          <button type="button" onclick="connectBaileysQR()" class="px-3.5 py-2 rounded-xl bg-royal text-white text-xs font-bold">Cargar QR</button>
+        </div>
+      </div>
+
+      <div id="baileys-qr-box" class="rounded-2xl bg-slate-50 border border-slate-200 p-5 flex flex-col items-center justify-center text-center min-h-[200px]">
+        <p class="text-xs text-slate-500">Ingresa la URL de tu servidor Baileys arriba para escanear el código QR.<br/><br/>Si aún no tienes el servidor encendido, los botones <strong>WA</strong> y <strong>Email</strong> de cada cliente siguen funcionando directo sin servidor.</p>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://iqnigpsrmfiiydxyietl.supabase.co';
     const SUPABASE_ANON = 'sb_publishable_bQ8QtLiqktNlmpfBUzyDXg_gjn5JY2h';
@@ -216,10 +246,10 @@
       currentUserEmail = 'demo@dgtowingllc.com (Modo Demo)';
       const nowIso = new Date().toISOString();
       allJobs = [
-        { id: '1', created_at: nowIso, customer_name: 'Marcus R.', customer_phone: '2035550142', vehicle: '2020 Honda Accord', pickup: 'Waterbury, CT (I-84 Exit 22)', destination: 'Hartford, CT', miles: 30, estimated_range: '$168 – $190', extra_fee: 0, total_price: 180, payment_method: 'Zelle', status: 'Completed', notes: '' },
-        { id: '2', created_at: nowIso, customer_name: 'Carlos M.', customer_phone: '3475550198', vehicle: '2019 Toyota Camry', pickup: 'Bronx, NY', destination: 'Waterbury, CT', miles: 75, estimated_range: '$450 – $600', extra_fee: 0, total_price: 500, payment_method: 'Cash', status: 'Completed', notes: '' },
-        { id: '3', created_at: nowIso, customer_name: 'Web Lead (WHATSAPP)', customer_phone: '', vehicle: 'SUV (Ford Explorer 2021)', pickup: 'Waterbury, CT', destination: 'New Haven, CT', miles: 25, estimated_range: '$160 – $180', extra_fee: 0, total_price: 170, payment_method: 'Pending', status: 'Quote', notes: '' },
-        { id: '4', created_at: nowIso, customer_name: 'Sarah L.', customer_phone: '2035550111', vehicle: '2018 Nissan Altima', pickup: 'Waterbury, CT', destination: 'Bristol, CT', miles: 12, estimated_range: '$100 – $130', extra_fee: 0, total_price: 115, payment_method: 'Apple Cash', status: 'En Route', notes: '' }
+        { id: '1', created_at: nowIso, customer_name: 'Marcus Rivera', customer_phone: '203-555-0142', customer_email: 'marcus.r@email.com', vehicle: '2020 Honda Accord', pickup: 'Waterbury, CT (I-84 Exit 22)', destination: 'Hartford, CT', miles: 30, estimated_range: '$168 – $190', extra_fee: 0, total_price: 180, payment_method: 'Zelle', status: 'Completed', notes: '' },
+        { id: '2', created_at: nowIso, customer_name: 'Carlos Mendoza', customer_phone: '347-555-0198', customer_email: 'cmendoza@email.com', vehicle: '2019 Toyota Camry', pickup: 'Bronx, NY', destination: 'Waterbury, CT', miles: 75, estimated_range: '$450 – $600', extra_fee: 0, total_price: 500, payment_method: 'Cash', status: 'Completed', notes: '' },
+        { id: '3', created_at: nowIso, customer_name: 'Web Lead (WHATSAPP)', customer_phone: '203-555-0177', customer_email: 'lead@email.com', vehicle: 'SUV (Ford Explorer 2021)', pickup: 'Waterbury, CT', destination: 'New Haven, CT', miles: 25, estimated_range: '$160 – $180', extra_fee: 0, total_price: 170, payment_method: 'Pending', status: 'Quote', notes: '' },
+        { id: '4', created_at: nowIso, customer_name: 'Sarah Lopez', customer_phone: '203-555-0111', customer_email: 'sarahl@email.com', vehicle: '2018 Nissan Altima', pickup: 'Waterbury, CT', destination: 'Bristol, CT', miles: 12, estimated_range: '$100 – $130', extra_fee: 0, total_price: 115, payment_method: 'Apple Cash', status: 'En Route', notes: '' }
       ];
       document.getElementById('login-view').classList.add('hidden');
       document.getElementById('app-view').classList.remove('hidden');
@@ -378,6 +408,7 @@
       const payload = {
         customer_name: document.getElementById('f-name').value.trim() || 'Cliente Directo',
         customer_phone: document.getElementById('f-phone').value.trim(),
+        customer_email: document.getElementById('f-email').value.trim(),
         vehicle: document.getElementById('f-vehicle').value.trim(),
         pickup: document.getElementById('f-pickup').value.trim(),
         destination: document.getElementById('f-dest').value.trim(),
@@ -476,11 +507,85 @@
       await fetchJobs();
     }
 
-    function sendReceipt(job) {
-      const msg = `DG Towing LLC - Recibo de Servicio\n• Cliente: ${job.customer_name}\n• Vehículo: ${job.vehicle}\n• Ruta: ${job.pickup} → ${job.destination}\n• Total: $${job.total_price} (${job.payment_method})\n¡Gracias por elegir DG Towing LLC!`;
+    function formatPhoneDash(input) {
+      const digits = input.value.replace(/\D/g, '').slice(0, 10);
+      if (digits.length > 6) input.value = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+      else if (digits.length > 3) input.value = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      else input.value = digits;
+    }
+
+    function openBaileysModal() {
+      document.getElementById('baileys-url').value = localStorage.getItem('dg_baileys_url') || '';
+      document.getElementById('baileys-modal').classList.remove('hidden');
+    }
+
+    function closeBaileysModal() {
+      document.getElementById('baileys-modal').classList.add('hidden');
+    }
+
+    async function connectBaileysQR() {
+      const url = document.getElementById('baileys-url').value.trim().replace(/\/$/, '');
+      const box = document.getElementById('baileys-qr-box');
+      if (!url) return;
+      localStorage.setItem('dg_baileys_url', url);
+      box.innerHTML = '<p class="text-xs text-royal font-semibold">Conectando con Baileys...</p>';
+      try {
+        const res = await fetch(`${url}/qr`);
+        const data = await res.json();
+        if (data.connected) {
+          box.innerHTML = '<p class="text-sm font-bold text-emerald-600">✓ WhatsApp Baileys Conectado</p>';
+        } else if (data.qrImage || data.qr) {
+          const src = data.qrImage || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr)}`;
+          box.innerHTML = `<img src="${src}" alt="Baileys QR" class="w-48 h-48 mx-auto rounded-xl" /><p class="text-[11px] text-slate-500 mt-2">Escanea con WhatsApp → Dispositivos vinculados</p>`;
+        } else {
+          box.innerHTML = '<p class="text-xs text-slate-600">Servidor respondió sin QR activo.</p>';
+        }
+      } catch (e) {
+        box.innerHTML = '<p class="text-xs text-red-600">No se pudo conectar con esa URL de Baileys. Verifica que el servidor Node.js esté encendido.</p>';
+      }
+    }
+
+    async function sendReceipt(job) {
+      const msg = `DG Towing LLC - Recibo / Cotización\n• Cliente: ${job.customer_name}\n• Vehículo: ${job.vehicle}\n• Ruta: ${job.pickup} → ${job.destination}\n• Total: $${job.total_price} (${job.payment_method})\nTeléfono: +1 (347) 323-3895\n¡Gracias por elegir DG Towing LLC!`;
       const phone = (job.customer_phone || '').replace(/\D/g, '');
+      const baileysUrl = localStorage.getItem('dg_baileys_url');
+
+      if (baileysUrl && phone) {
+        try {
+          const res = await fetch(`${baileysUrl}/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ number: `1${phone}`, message: msg })
+          });
+          if (res.ok) { alert('✓ Mensaje enviado automáticamente vía Baileys'); return; }
+        } catch (e) {}
+      }
+
       const url = phone ? `https://wa.me/1${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
       window.open(url, '_blank');
+    }
+
+    function sendEmailReceipt(job) {
+      const subject = encodeURIComponent(`DG Towing LLC - Receipt / Quote (${job.vehicle})`);
+      const body = encodeURIComponent(`Hello ${job.customer_name},\n\nHere are the details for your service with DG Towing LLC:\n\n• Vehicle: ${job.vehicle}\n• Pickup: ${job.pickup}\n• Destination: ${job.destination}\n• Total: $${job.total_price}\n• Payment Method: ${job.payment_method}\n\n24/7 Dispatch: +1 (347) 323-3895\nThank you for choosing DG Towing LLC!`);
+      window.location.href = `mailto:${job.customer_email || ''}?subject=${subject}&body=${body}`;
+    }
+
+    async function updateJobPrice(id) {
+      const current = allJobs.find(x => x.id === id);
+      const val = prompt('Nuevo precio total ($):', current ? current.total_price : 80);
+      if (val === null || isNaN(Number(val))) return;
+      const num = Number(val);
+      if (isDemoMode) {
+        if (current) current.total_price = num;
+        updateStats(); renderJobs(); return;
+      }
+      await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ total_price: num })
+      });
+      await fetchJobs();
     }
 
     function updateStats() {
@@ -540,6 +645,7 @@
                 <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${badgeColor}">${j.status}</span>
                 <span class="font-bold text-sm text-navy">${j.customer_name || 'Web Lead'}</span>
                 ${j.customer_phone ? `<a href="tel:${j.customer_phone}" class="text-xs font-semibold text-royal hover:underline">${j.customer_phone}</a>` : ''}
+                ${j.customer_email ? `<span class="text-xs text-slate-500">• ${j.customer_email}</span>` : ''}
                 <span class="text-[11px] text-slate-400">• ${date}</span>
               </div>
               <div class="text-xs font-semibold text-slate-700">${j.vehicle}</div>
@@ -547,7 +653,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2 shrink-0">
-              <span class="font-bold text-base text-navy mr-2">$${j.total_price || 0}</span>
+              <button type="button" onclick="updateJobPrice('${j.id}')" class="font-bold text-base text-navy hover:text-royal mr-1 underline decoration-dotted" title="Editar precio">$${j.total_price || 0}</button>
 
               <select onchange="updateJobPayment('${j.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
                 <option value="Pending" ${j.payment_method==='Pending'?'selected':''}>Pago...</option>
@@ -564,7 +670,8 @@
                 <option value="Completed" ${j.status==='Completed'?'selected':''}>Completed</option>
               </select>
 
-              <button type="button" onclick='sendReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-[#16A34A] text-white text-xs font-bold" title="Enviar recibo por WhatsApp">WA</button>
+              <button type="button" onclick='sendReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-[#16A34A] text-white text-xs font-bold" title="Enviar por WhatsApp">WA</button>
+              <button type="button" onclick='sendEmailReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-royal text-white text-xs font-bold" title="Enviar por Email">Email</button>
               <button type="button" onclick="deleteJob('${j.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold" title="Eliminar">✕</button>
             </div>
           </div>
@@ -573,9 +680,9 @@
     }
 
     function exportCSV() {
-      const headers = ['Fecha', 'Cliente', 'Telefono', 'Vehiculo', 'Pickup', 'Destino', 'Millas', 'Total', 'Metodo Pago', 'Estado', 'Notas'];
+      const headers = ['Fecha', 'Cliente', 'Telefono', 'Email', 'Vehiculo', 'Pickup', 'Destino', 'Millas', 'Total', 'Metodo Pago', 'Estado', 'Notas'];
       const rows = allJobs.map(j => [
-        j.created_at, j.customer_name, j.customer_phone, j.vehicle, j.pickup, j.destination, j.miles, j.total_price, j.payment_method, j.status, j.notes
+        j.created_at, j.customer_name, j.customer_phone, j.customer_email, j.vehicle, j.pickup, j.destination, j.miles, j.total_price, j.payment_method, j.status, j.notes
       ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','));
       const csv = [headers.join(','), ...rows].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

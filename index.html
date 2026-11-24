@@ -219,6 +219,13 @@
 
           </div>
 
+          <!-- Compact Customer Contact Row (Full Name, Dashed Phone, Email) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-3 pt-3 border-t border-slate-100">
+            <input type="text" id="cust-name" aria-label="Full Name" placeholder="Full Name (First &amp; Last)" data-placeholder-en="Full Name (First &amp; Last)" data-placeholder-es="Nombre y Apellido" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            <input type="tel" id="cust-phone" oninput="formatPhoneDash(this)" maxlength="12" aria-label="Phone Number" placeholder="Phone (e.g. 347-323-3895)" data-placeholder-en="Phone (e.g. 347-323-3895)" data-placeholder-es="Teléfono (Ej. 347-323-3895)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+            <input type="email" id="cust-email" aria-label="Email Address" placeholder="Email (for receipt/quote)" data-placeholder-en="Email (for receipt/quote)" data-placeholder-es="Correo electrónico (opcional)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-navy placeholder-slate-500 text-xs sm:text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+          </div>
+
           <datalist id="ct-cities">
             <option value="Waterbury, CT">
             <option value="Naugatuck, CT">
@@ -764,10 +771,24 @@
       );
     }
 
+    function formatPhoneDash(input) {
+      const digits = input.value.replace(/\D/g, '').slice(0, 10);
+      if (digits.length > 6) {
+        input.value = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+      } else if (digits.length > 3) {
+        input.value = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      } else {
+        input.value = digits;
+      }
+    }
+
     function sendQuote(channel) {
       const pickup = document.getElementById('pickup').value.trim();
       const destination = document.getElementById('destination').value.trim();
       const vehicle = document.getElementById('vehicle').value.trim();
+      const custName = (document.getElementById('cust-name')?.value || '').trim();
+      const custPhone = (document.getElementById('cust-phone')?.value || '').trim();
+      const custEmail = (document.getElementById('cust-email')?.value || '').trim();
 
       if (!pickup || !destination) {
         document.getElementById('quote').scrollIntoView({ behavior: 'smooth' });
@@ -777,7 +798,7 @@
       }
 
       const vehicleInfo = vehicle ? `${selectedVehicleCategory} (${vehicle})` : selectedVehicleCategory;
-      const msg = `DG Towing Quote:\n• Pickup: ${pickup}\n• Drop-off: ${destination}\n• Vehicle: ${vehicleInfo}\n• Estimate: ${lastEstimatedText}`;
+      const msg = `DG Towing Quote:\n${custName ? `• Name: ${custName}\n` : ''}${custPhone ? `• Phone: ${custPhone}\n` : ''}• Pickup: ${pickup}\n• Drop-off: ${destination}\n• Vehicle: ${vehicleInfo}\n• Estimate: ${lastEstimatedText}`;
       const encoded = encodeURIComponent(msg);
       const phone = '13473233895';
 
@@ -790,7 +811,9 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            customer_name: 'Web Lead (' + channel.toUpperCase() + ')',
+            customer_name: custName || 'Web Lead (' + channel.toUpperCase() + ')',
+            customer_phone: custPhone,
+            customer_email: custEmail,
             vehicle: vehicleInfo,
             pickup: pickup,
             destination: destination,
