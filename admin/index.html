@@ -356,6 +356,41 @@
     </div>
   </div>
 
+  <!-- MODAL: CHOOSE MESSAGE TEMPLATE (Quote / En Route / Thank You + Review) -->
+  <div id="tpl-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-lg text-navy">Enviar Mensaje / Template</h3>
+          <p id="tpl-client-label" class="text-xs text-slate-500"></p>
+        </div>
+        <button type="button" onclick="closeTplModal()" class="w-8 h-8 rounded-full bg-slate-100 text-navy font-bold text-sm">✕</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" onclick="selectTplType('quote')" id="tpl-btn-quote" class="py-2 px-2 rounded-xl bg-royal text-white text-xs font-bold">💬 Cotización</button>
+        <button type="button" onclick="selectTplType('enroute')" id="tpl-btn-enroute" class="py-2 px-2 rounded-xl bg-ice text-navy text-xs font-bold">🚛 En Camino</button>
+        <button type="button" onclick="selectTplType('thanks')" id="tpl-btn-thanks" class="py-2 px-2 rounded-xl bg-ice text-navy text-xs font-bold">⭐ Gracias/Review</button>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Link de Google Review (se guarda automático)</label>
+        <input type="url" id="google-review-url" oninput="saveReviewLink()" placeholder="https://g.page/r/.../review" class="w-full px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+      </div>
+
+      <textarea id="tpl-preview" rows="7" class="w-full p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-navy leading-relaxed focus:outline-none focus:ring-2 focus:ring-royal"></textarea>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <button type="button" onclick="dispatchTpl('wa')" class="py-3 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-xs shadow transition">
+          Enviar por WhatsApp
+        </button>
+        <button type="button" onclick="dispatchTpl('email')" class="py-3 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-xs shadow transition">
+          Enviar por Email
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: BAILEYS WHATSAPP QR -->
   <div id="baileys-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
@@ -790,11 +825,59 @@
       }
     }
 
-    async function sendReceipt(job) {
-      const msg = `DG Towing LLC - Recibo / Cotización\n• Cliente: ${job.customer_name}\n• Vehículo: ${job.vehicle}\n• Ruta: ${job.pickup} → ${job.destination}\n• Total: $${job.total_price} (${job.payment_method})\nTel: +1 (347) 323-3895`;
-      const phone = (job.customer_phone || '').replace(/\D/g, '');
-      const baileysUrl = localStorage.getItem('dg_baileys_url');
+    let activeTplJob = null;
 
+    function openTplModal(job, defaultType = 'thanks') {
+      activeTplJob = job;
+      document.getElementById('tpl-client-label').textContent = `${job.customer_name} • ${job.vehicle}`;
+      document.getElementById('google-review-url').value = localStorage.getItem('dg_google_review_url') || 'https://g.page/r/TU_LINK_DE_GOOGLE/review';
+      selectTplType(job.status === 'Quote' ? 'quote' : job.status === 'En Route' ? 'enroute' : defaultType);
+      document.getElementById('tpl-modal').classList.remove('hidden');
+    }
+
+    function closeTplModal() {
+      document.getElementById('tpl-modal').classList.add('hidden');
+    }
+
+    function saveReviewLink() {
+      localStorage.setItem('dg_google_review_url', document.getElementById('google-review-url').value.trim());
+    }
+
+    function selectTplType(type) {
+      if (!activeTplJob) return;
+      ['quote', 'enroute', 'thanks'].forEach(t => {
+        const b = document.getElementById(`tpl-btn-${t}`);
+        b.className = t === type
+          ? 'py-2 px-2 rounded-xl bg-royal text-white text-xs font-bold'
+          : 'py-2 px-2 rounded-xl bg-ice text-navy text-xs font-bold';
+      });
+
+      const j = activeTplJob;
+      const reviewLink = document.getElementById('google-review-url').value.trim() || 'https://dgtowingllc.com';
+      let text = '';
+
+      if (type === 'quote') {
+        text = `Hello ${j.customer_name}, thank you for contacting DG Towing LLC!\n\nHere is your quote:\n• Service: ${j.service_type || 'Towing'}\n• Vehicle: ${j.vehicle}\n• Route: ${j.pickup} → ${j.destination}\n• Estimated Total: $${j.total_price}\n\nReply to confirm dispatch! 24/7: +1 (347) 323-3895\nhttps://dgtowingllc.com`;
+      } else if (type === 'enroute') {
+        text = `Hi ${j.customer_name}, DG Towing LLC is on the way! 🚛\n\n• Pickup: ${j.pickup}\n• Vehicle: ${j.vehicle}\n• Estimated Arrival: ~25 mins\n\nCall/Text if you need anything: +1 (347) 323-3895`;
+      } else {
+        text = `Hi ${j.customer_name}, thank you for choosing DG Towing LLC! 🚛\n\nService Receipt:\n• Service: ${j.service_type || 'Towing'}\n• Vehicle: ${j.vehicle}\n• Route: ${j.pickup} → ${j.destination}\n• Total Paid: $${j.total_price} (${j.payment_method})\n\nIf you were happy with our service, please leave us a quick 5-star review on Google:\n⭐ ${reviewLink}\n\n24/7 Dispatch: +1 (347) 323-3895\nhttps://dgtowingllc.com`;
+      }
+      document.getElementById('tpl-preview').value = text;
+    }
+
+    async function dispatchTpl(channel) {
+      if (!activeTplJob) return;
+      const msg = document.getElementById('tpl-preview').value;
+      const phone = (activeTplJob.customer_phone || '').replace(/\D/g, '');
+
+      if (channel === 'email') {
+        const subject = encodeURIComponent(`DG Towing LLC — ${activeTplJob.vehicle}`);
+        window.location.href = `mailto:${activeTplJob.customer_email || ''}?subject=${subject}&body=${encodeURIComponent(msg)}`;
+        return;
+      }
+
+      const baileysUrl = localStorage.getItem('dg_baileys_url');
       if (baileysUrl && phone) {
         try {
           const res = await fetch(`${baileysUrl}/send`, {
@@ -802,17 +885,15 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ number: `1${phone}`, message: msg })
           });
-          if (res.ok) { alert('✓ Enviado por Baileys'); return; }
+          if (res.ok) { alert('✓ Enviado por Baileys'); closeTplModal(); return; }
         } catch (e) {}
       }
       window.open(phone ? `https://wa.me/1${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+      closeTplModal();
     }
 
-    function sendEmailReceipt(job) {
-      const subject = encodeURIComponent(`DG Towing LLC - Receipt / Quote (${job.vehicle})`);
-      const body = encodeURIComponent(`Hello ${job.customer_name},\n\nService Details:\n• Vehicle: ${job.vehicle}\n• Pickup: ${job.pickup}\n• Destination: ${job.destination}\n• Total: $${job.total_price} (${job.payment_method})\n\n24/7 Dispatch: +1 (347) 323-3895`);
-      window.location.href = `mailto:${job.customer_email || ''}?subject=${subject}&body=${body}`;
-    }
+    function sendReceipt(job) { openTplModal(job, 'thanks'); }
+    function sendEmailReceipt(job) { openTplModal(job, 'thanks'); }
 
     function updateStatsAndCharts() {
       const now = new Date();
