@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /email-template.html
+
+Sitemap: https://www.dgtowingllc.com/sitemap.xml
