@@ -665,11 +665,10 @@
     }
 
     async function checkWaStatusBadge() {
-      const url = (localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com').replace(/\/$/, '');
       const textEl = document.getElementById('header-wa-text');
       if (!textEl) return;
       try {
-        const res = await fetch(`${url}/status`);
+        const res = await fetch('/api/wa?action=status');
         const data = await res.json();
         textEl.textContent = data.connected ? `WhatsApp (${data.line || 'Online'})` : 'Conectar WhatsApp';
       } catch (e) {
@@ -828,13 +827,13 @@
     }
 
     async function connectBaileysQR() {
-      const url = document.getElementById('baileys-url').value.trim().replace(/\/$/, '');
+      const customUrl = document.getElementById('baileys-url').value.trim().replace(/\/$/, '');
       const box = document.getElementById('baileys-qr-box');
-      if (!url) return;
-      localStorage.setItem('dg_baileys_url', url);
+      if (customUrl) localStorage.setItem('dg_baileys_url', customUrl);
       box.innerHTML = '<p class="text-xs text-royal font-semibold">Conectando con WhatsApp...</p>';
       try {
-        const res = await fetch(`${url}/qr`);
+        const q = customUrl && !customUrl.includes('wa.dgtowingllc.com') ? `&baseUrl=${encodeURIComponent(customUrl)}` : '';
+        const res = await fetch(`/api/wa?action=qr${q}`);
         const data = await res.json();
         if (data.connected) {
           box.innerHTML = `<div class="space-y-1"><p class="text-sm font-bold text-emerald-600">✓ WhatsApp Conectado</p><p class="text-xs text-slate-500">Línea activa: <strong>${data.line || 'Conectada'}</strong></p></div>`;
@@ -922,9 +921,8 @@
         return;
       }
 
-      const baileysUrl = (localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com').replace(/\/$/, '');
       try {
-        const stRes = await fetch(`${baileysUrl}/status`);
+        const stRes = await fetch('/api/wa?action=status');
         const st = await stRes.json();
         if (!st.connected) {
           closeTplModal();
@@ -932,7 +930,7 @@
           return;
         }
         if (phone) {
-          const res = await fetch(`${baileysUrl}/send`, {
+          const res = await fetch('/api/wa?action=send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ number: `1${phone}`, message: msg })
