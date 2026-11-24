@@ -352,7 +352,7 @@
                 <div class="font-display font-bold text-base text-white">Waterbury → New Haven</div>
                 <div class="text-xs text-slate-300 mt-0.5">~25 miles • Route 8 / I-95</div>
               </div>
-              <span class="font-display font-bold text-sm text-blue-300">$148 – $165</span>
+              <span class="font-display font-bold text-sm text-blue-300">$160 – $180</span>
             </button>
 
             <button type="button" onclick="quickRoute('Waterbury, CT', 'Hartford, CT')" class="text-left p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition flex items-center justify-between">
@@ -376,7 +376,7 @@
                 <div class="font-display font-bold text-base text-white">Waterbury → Bristol</div>
                 <div class="text-xs text-slate-300 mt-0.5">~12 miles • Route 69 / 72</div>
               </div>
-              <span class="font-display font-bold text-sm text-blue-300">$96 – $100</span>
+              <span class="font-display font-bold text-sm text-blue-300">$100 – $130</span>
             </button>
 
             <button type="button" onclick="quickRoute('Waterbury, CT', 'Bridgeport, CT')" class="text-left p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition flex items-center justify-between">
@@ -392,7 +392,7 @@
                 <div class="font-display font-bold text-base text-white">New York / Bronx ↔ Waterbury, CT</div>
                 <div class="text-xs text-slate-300 mt-0.5">~72–82 miles • Tri-State Transport (I-95 / I-84)</div>
               </div>
-              <span class="font-display font-bold text-sm text-blue-300">$340 – $450</span>
+              <span class="font-display font-bold text-sm text-blue-300">$450 – $600</span>
             </button>
           </div>
 
@@ -688,7 +688,18 @@
       if (c1 && c2) {
         const miles = haversineMiles(c1, c2);
         distLabel.textContent = currentLang === 'en' ? `~${miles} miles est.` : `~${miles} millas est.`;
-        if (miles <= 8) {
+
+        const pLower = pickupVal.toLowerCase();
+        const dLower = destVal.toLowerCase();
+        const hasWaterbury = pLower.includes('waterbury') || dLower.includes('waterbury');
+
+        if (hasWaterbury && (pLower.includes('bristol') || dLower.includes('bristol'))) {
+          lastEstimatedText = '$100 – $130';
+        } else if (hasWaterbury && (pLower.includes('new haven') || dLower.includes('new haven'))) {
+          lastEstimatedText = '$160 – $180';
+        } else if (hasWaterbury && (pLower.includes('bronx') || dLower.includes('bronx') || pLower.includes('new york') || dLower.includes('new york') || pLower.includes('manhattan') || dLower.includes('manhattan') || pLower.includes('queens') || dLower.includes('queens') || pLower.includes('brooklyn') || dLower.includes('brooklyn'))) {
+          lastEstimatedText = '$450 – $600';
+        } else if (miles <= 8) {
           lastEstimatedText = '$80';
         } else {
           const extra = miles - 8;
