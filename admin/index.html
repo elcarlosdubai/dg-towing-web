@@ -36,11 +36,7 @@
         <button type="submit" id="login-btn" class="w-full py-3.5 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-sm shadow-md transition">
           Iniciar Sesión
         </button>
-        <button type="button" onclick="enterDemoMode()" class="w-full py-2.5 rounded-xl bg-ice hover:bg-blue-100 text-royal font-bold text-xs transition">
-          Ver Interfaz (Modo Demo)
-        </button>
       </form>
-      <p class="text-[11px] text-center text-slate-400 mt-4">Demo: <span class="font-mono">demo@dgtowingllc.com</span> / <span class="font-mono">demo1234</span></p>
     </div>
   </div>
 
@@ -436,7 +432,6 @@
 
     let accessToken = localStorage.getItem('dg_access_token') || '';
     let currentUserEmail = localStorage.getItem('dg_user_email') || '';
-    let isDemoMode = false;
     let allJobs = [];
     let ridesPage = 1;
     let customersPage = 1;
@@ -605,24 +600,6 @@
       document.getElementById('f-total').value = Math.round(calc + extra);
     }
 
-    function enterDemoMode() {
-      isDemoMode = true;
-      currentUserEmail = 'DG TOWING SYS';
-      const dayMs = 86400000;
-      const now = Date.now();
-      allJobs = [
-        { id: '1', created_at: new Date(now).toISOString(), customer_name: 'Marcus Rivera', customer_phone: '203-555-0142', customer_email: 'marcus.r@email.com', vehicle: '2020 Honda Accord', pickup: 'Waterbury, CT', destination: 'Hartford, CT', miles: 30, estimated_range: '$168 – $190', extra_fee: 0, total_price: 180, payment_method: 'Zelle', status: 'Completed', notes: '' },
-        { id: '2', created_at: new Date(now - dayMs).toISOString(), customer_name: 'Carlos Mendoza', customer_phone: '347-555-0198', customer_email: 'cmendoza@email.com', vehicle: '2019 Toyota Camry', pickup: 'Bronx, NY', destination: 'Waterbury, CT', miles: 75, estimated_range: '$450 – $600', extra_fee: 0, total_price: 500, payment_method: 'Cash', status: 'Completed', notes: '' },
-        { id: '3', created_at: new Date(now - 2 * dayMs).toISOString(), customer_name: 'Marcus Rivera', customer_phone: '203-555-0142', customer_email: 'marcus.r@email.com', vehicle: '2022 Ford F-150', pickup: 'Waterbury, CT', destination: 'New Haven, CT', miles: 25, estimated_range: '$160 – $180', extra_fee: 0, total_price: 170, payment_method: 'Apple Cash', status: 'Completed', notes: '' },
-        { id: '4', created_at: new Date(now - 3 * dayMs).toISOString(), customer_name: 'Sarah Lopez', customer_phone: '203-555-0111', customer_email: 'sarahl@email.com', vehicle: '2018 Nissan Altima', pickup: 'Waterbury, CT', destination: 'Bristol, CT', miles: 12, estimated_range: '$100 – $130', extra_fee: 0, total_price: 120, payment_method: 'PayPal', status: 'Completed', notes: '' },
-        { id: '5', created_at: new Date(now).toISOString(), customer_name: 'Web Lead (WHATSAPP)', customer_phone: '203-555-0177', customer_email: 'lead@email.com', vehicle: 'SUV (Ford Explorer 2021)', pickup: 'Waterbury, CT', destination: 'Danbury, CT', miles: 32, estimated_range: '$176 – $200', extra_fee: 0, total_price: 185, payment_method: 'Pending', status: 'Quote', notes: '' }
-      ];
-      document.getElementById('login-view').classList.add('hidden');
-      document.getElementById('app-view').classList.remove('hidden');
-      document.getElementById('user-email-badge').textContent = currentUserEmail;
-      refreshUI();
-    }
-
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
@@ -631,8 +608,6 @@
       const btn = document.getElementById('login-btn');
 
       errEl.classList.add('hidden');
-      if (email === 'demo@dgtowingllc.com' && password === 'demo1234') { enterDemoMode(); return; }
-
       btn.textContent = 'Entrando...';
       try {
         const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
@@ -658,7 +633,6 @@
 
     function logout() {
       accessToken = '';
-      isDemoMode = false;
       localStorage.removeItem('dg_access_token');
       localStorage.removeItem('dg_user_email');
       document.getElementById('app-view').classList.add('hidden');
@@ -732,15 +706,6 @@
         notes: document.getElementById('f-notes').value.trim()
       };
 
-      if (isDemoMode) {
-        allJobs.unshift({ id: String(Date.now()), created_at: new Date().toISOString(), ...payload });
-        resetFormAndClose();
-        refreshUI();
-        btn.textContent = 'Guardar Registro';
-        if (sendWAAfter) sendReceipt(payload);
-        return;
-      }
-
       const res = await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs`, {
         method: 'POST',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
@@ -782,11 +747,6 @@
     }
 
     async function updateJobStatus(id, newStatus) {
-      if (isDemoMode) {
-        const j = allJobs.find(x => x.id === id);
-        if (j) j.status = newStatus;
-        refreshUI(); return;
-      }
       await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
         method: 'PATCH',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -796,11 +756,6 @@
     }
 
     async function updateJobPayment(id, method) {
-      if (isDemoMode) {
-        const j = allJobs.find(x => x.id === id);
-        if (j) j.payment_method = method;
-        refreshUI(); return;
-      }
       await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
         method: 'PATCH',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -814,10 +769,6 @@
       const val = prompt('Nuevo precio total ($):', current ? current.total_price : 80);
       if (val === null || isNaN(Number(val))) return;
       const num = Number(val);
-      if (isDemoMode) {
-        if (current) current.total_price = num;
-        refreshUI(); return;
-      }
       await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
         method: 'PATCH',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -828,10 +779,6 @@
 
     async function deleteJob(id) {
       if (!confirm('¿Eliminar este registro?')) return;
-      if (isDemoMode) {
-        allJobs = allJobs.filter(x => x.id !== id);
-        refreshUI(); return;
-      }
       await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_jobs?id=eq.${id}`, {
         method: 'DELETE',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` }
