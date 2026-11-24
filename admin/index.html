@@ -537,7 +537,7 @@
       window.open(`https://maps.google.com/?q=${encodeURIComponent(val)}`, '_blank');
     }
     function openBaileysModal() {
-      document.getElementById('baileys-url').value = localStorage.getItem('dg_baileys_url') || '';
+      document.getElementById('baileys-url').value = localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com';
       document.getElementById('baileys-modal').classList.remove('hidden');
     }
     function closeBaileysModal() { document.getElementById('baileys-modal').classList.add('hidden'); }
@@ -896,7 +896,7 @@
         return;
       }
 
-      const baileysUrl = localStorage.getItem('dg_baileys_url');
+      const baileysUrl = localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com';
       if (baileysUrl && phone) {
         try {
           const res = await fetch(`${baileysUrl}/send`, {
