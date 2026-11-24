@@ -367,10 +367,9 @@
         <button type="button" onclick="closeTplModal()" class="w-8 h-8 rounded-full bg-slate-100 text-navy font-bold text-sm">✕</button>
       </div>
 
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="selectTplType('quote')" id="tpl-btn-quote" class="py-2 px-2 rounded-xl bg-royal text-white text-xs font-bold">💬 Cotización</button>
-        <button type="button" onclick="selectTplType('enroute')" id="tpl-btn-enroute" class="py-2 px-2 rounded-xl bg-ice text-navy text-xs font-bold">🚛 En Camino</button>
-        <button type="button" onclick="selectTplType('thanks')" id="tpl-btn-thanks" class="py-2 px-2 rounded-xl bg-ice text-navy text-xs font-bold">⭐ Gracias/Review</button>
+        <button type="button" onclick="selectTplType('thanks')" id="tpl-btn-thanks" class="py-2 px-2 rounded-xl bg-ice text-navy text-xs font-bold">⭐ Gracias / Review</button>
       </div>
 
       <div>
@@ -831,7 +830,7 @@
       activeTplJob = job;
       document.getElementById('tpl-client-label').textContent = `${job.customer_name} • ${job.vehicle}`;
       document.getElementById('google-review-url').value = localStorage.getItem('dg_google_review_url') || 'https://g.page/r/TU_LINK_DE_GOOGLE/review';
-      selectTplType(job.status === 'Quote' ? 'quote' : job.status === 'En Route' ? 'enroute' : defaultType);
+      selectTplType(job.status === 'Quote' ? 'quote' : defaultType);
       document.getElementById('tpl-modal').classList.remove('hidden');
     }
 
@@ -845,7 +844,7 @@
 
     function selectTplType(type) {
       if (!activeTplJob) return;
-      ['quote', 'enroute', 'thanks'].forEach(t => {
+      ['quote', 'thanks'].forEach(t => {
         const b = document.getElementById(`tpl-btn-${t}`);
         b.className = t === type
           ? 'py-2 px-2 rounded-xl bg-royal text-white text-xs font-bold'
@@ -858,8 +857,6 @@
 
       if (type === 'quote') {
         text = `Hello ${j.customer_name}, thank you for contacting DG Towing LLC!\n\nHere is your quote:\n• Service: ${j.service_type || 'Towing'}\n• Vehicle: ${j.vehicle}\n• Route: ${j.pickup} → ${j.destination}\n• Estimated Total: $${j.total_price}\n\nReply to confirm dispatch! 24/7: +1 (347) 323-3895\nhttps://dgtowingllc.com`;
-      } else if (type === 'enroute') {
-        text = `Hi ${j.customer_name}, DG Towing LLC is on the way! 🚛\n\n• Pickup: ${j.pickup}\n• Vehicle: ${j.vehicle}\n• Estimated Arrival: ~25 mins\n\nCall/Text if you need anything: +1 (347) 323-3895`;
       } else {
         text = `Hi ${j.customer_name}, thank you for choosing DG Towing LLC! 🚛\n\nService Receipt:\n• Service: ${j.service_type || 'Towing'}\n• Vehicle: ${j.vehicle}\n• Route: ${j.pickup} → ${j.destination}\n• Total Paid: $${j.total_price} (${j.payment_method})\n\nIf you were happy with our service, please leave us a quick 5-star review on Google:\n⭐ ${reviewLink}\n\n24/7 Dispatch: +1 (347) 323-3895\nhttps://dgtowingllc.com`;
       }
