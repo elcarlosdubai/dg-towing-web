@@ -127,11 +127,17 @@ module.exports = async function handler(req, res) {
     ? `Your DG Towing LLC Quote — ${job.vehicle || 'Vehicle Transport'}`
     : `Thank You for Choosing DG Towing LLC — Service Receipt`;
 
+  const textFallback = type === 'quote'
+    ? `Hello ${job.customer_name || ''},\n\nHere is your DG Towing LLC quote:\nService: ${job.service_type || 'Towing'}\nVehicle: ${job.vehicle}\nPickup: ${job.pickup}\nDrop-off: ${job.destination}\nQuoted Price: $${Number(job.total_price || 0).toFixed(2)}\n\nCall/WhatsApp 24/7: +1 (347) 323-3895\nhttps://dgtowingllc.com`
+    : `Hello ${job.customer_name || ''},\n\nThank you for choosing DG Towing LLC!\nService: ${job.service_type || 'Towing'}\nVehicle: ${job.vehicle}\nPickup: ${job.pickup}\nDrop-off: ${job.destination}\nTotal Paid: $${Number(job.total_price || 0).toFixed(2)} (${job.payment_method || 'Paid'})\n\nLeave a 5-star review on Google: ${reviewLink || 'https://dgtowingllc.com'}\n\n24/7 Dispatch: +1 (347) 323-3895`;
+
   try {
     await transporter.sendMail({
       from: `"DG Towing LLC" <${process.env.SMTP_USER || 'info@dgtowingllc.com'}>`,
+      replyTo: process.env.SMTP_USER || 'info@dgtowingllc.com',
       to,
       subject,
+      text: textFallback,
       html: buildEmailHtml({ type, job, reviewLink }),
     });
     return res.status(200).json({ ok: true });

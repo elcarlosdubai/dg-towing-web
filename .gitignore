@@ -2,3 +2,6 @@ extracted_mockup/
 *.zip
 aaa5116e-2380-476c-890b-6caab023d1a9.jpeg
 .DS_Store
+node_modules/
+baileys-server/node_modules/
+baileys-server/auth_info/
