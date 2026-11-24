@@ -1,6 +1,6 @@
 module.exports = async function handler(req, res) {
   const action = req.query.action || 'status';
-  const baseUrl = (req.query.baseUrl || process.env.WA_SERVER_URL || 'http://wa.dgtowingllc.com').replace(/\/$/, '');
+  const baseUrl = (req.query.baseUrl || process.env.WA_SERVER_URL || 'https://wa.dgtowingllc.com').replace(/\/$/, '');
 
   try {
     if (action === 'send' && req.method === 'POST') {
