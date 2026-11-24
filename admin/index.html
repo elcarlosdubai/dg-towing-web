@@ -991,6 +991,8 @@
         return;
       }
 
+      const waBtn = document.getElementById('tpl-send-wa');
+      if (waBtn) { waBtn.textContent = 'Enviando WhatsApp...'; waBtn.disabled = true; }
       try {
         const stRes = await fetch('/api/wa?action=status');
         const st = await stRes.json();
@@ -1007,7 +1009,9 @@
           });
           if (res.ok) { alert('✓ Mensaje enviado por WhatsApp'); closeTplModal(); return; }
         }
-      } catch (e) {}
+      } catch (e) {} finally {
+        if (waBtn) { waBtn.textContent = 'Enviar por WhatsApp'; waBtn.disabled = false; }
+      }
       window.open(phone ? `https://wa.me/1${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
       closeTplModal();
     }
@@ -1134,8 +1138,7 @@
             <div class="flex items-center justify-between sm:justify-end gap-2">
               <button type="button" onclick="updateJobPrice('${j.id}')" class="font-bold text-base text-navy hover:text-royal underline decoration-dotted">$${j.total_price || 0}</button>
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick='sendReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-[#16A34A] text-white text-xs font-bold">WA</button>
-                <button type="button" onclick='sendEmailReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-royal text-white text-xs font-bold">Email</button>
+                <button type="button" onclick='openTplModal(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-3 py-1.5 rounded-lg bg-royal hover:bg-blue-800 text-white text-xs font-bold transition">Enviar</button>
                 <button type="button" onclick="deleteJob('${j.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold">✕</button>
               </div>
             </div>
