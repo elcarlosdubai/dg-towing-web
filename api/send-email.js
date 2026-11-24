@@ -113,9 +113,10 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Falta configurar SMTP_PASS en Vercel Environment Variables.' });
   }
 
-  const { to, type, job, reviewLink } = req.body || {};
-  if (!to || !job) {
-    return res.status(400).json({ error: 'Falta el correo destino o los datos del servicio.' });
+  const { to, bcc, type, job, reviewLink } = req.body || {};
+  const targetTo = to || process.env.NOTIFY_EMAIL || 'info@dgtowingllc.com';
+  if (!job) {
+    return res.status(400).json({ error: 'Faltan los datos del servicio.' });
   }
 
   const transporter = nodemailer.createTransport({
@@ -128,23 +129,33 @@ module.exports = async function handler(req, res) {
     },
   });
 
-  const subject = type === 'quote'
-    ? `Your DG Towing LLC Quote — ${job.vehicle || 'Vehicle Transport'}`
-    : `Thank You for Choosing DG Towing LLC — Service Receipt`;
+  let subject = `Thank You for Choosing DG Towing LLC — Service Receipt`;
+  if (type === 'quote') {
+    subject = `Your DG Towing LLC Quote — ${job.vehicle || 'Vehicle Transport'}`;
+  } else if (type === 'web_lead') {
+    subject = `🚨 Nuevo Lead Web: ${job.customer_name || 'Cliente'} (${job.pickup} → ${job.destination})`;
+  }
 
-  const textFallback = type === 'quote'
+  const textFallback = type === 'web_lead'
+    ? `Nuevo Lead desde dgtowingllc.com:\nCliente: ${job.customer_name || 'Web Lead'}\nTel: ${job.customer_phone || 'N/A'}\nEmail: ${job.customer_email || 'N/A'}\nVehículo: ${job.vehicle}\nPickup: ${job.pickup}\nDestino: ${job.destination}\nEstimado: ${job.estimated_range || 'N/A'}`
+    : type === 'quote'
     ? `Hello ${job.customer_name || ''},\n\nHere is your DG Towing LLC quote:\nService: ${job.service_type || 'Towing'}\nVehicle: ${job.vehicle}\nPickup: ${job.pickup}\nDrop-off: ${job.destination}\nQuoted Price: $${Number(job.total_price || 0).toFixed(2)}\n\nCall/WhatsApp 24/7: +1 (347) 323-3895\nhttps://dgtowingllc.com`
     : `Hello ${job.customer_name || ''},\n\nThank you for choosing DG Towing LLC!\nService: ${job.service_type || 'Towing'}\nVehicle: ${job.vehicle}\nPickup: ${job.pickup}\nDrop-off: ${job.destination}\nTotal Paid: $${Number(job.total_price || 0).toFixed(2)} (${job.payment_method || 'Paid'})\n\nLeave a 5-star review on Google: ${reviewLink || 'https://dgtowingllc.com'}\n\n24/7 Dispatch: +1 (347) 323-3895`;
 
+  const mailOptions = {
+    from: `"DG Towing LLC" <${process.env.SMTP_USER || 'info@dgtowingllc.com'}>`,
+    replyTo: process.env.SMTP_USER || 'info@dgtowingllc.com',
+    to: targetTo,
+    subject,
+    text: textFallback,
+    html: type === 'web_lead' ? `<div style="font-family:sans-serif;padding:20px;background:#F1F5FB;"><div style="max-width:520px;margin:auto;background:#fff;padding:24px;border-radius:16px;border:1px solid #E2E8F0;"><h2 style="margin-top:0;color:#1D4ED8;">🚨 Nuevo Lead desde la Web</h2><p><strong>Cliente:</strong> ${escapeHtml(job.customer_name)}</p><p><strong>Teléfono:</strong> ${escapeHtml(job.customer_phone || 'N/A')}</p><p><strong>Email:</strong> ${escapeHtml(job.customer_email || 'N/A')}</p><p><strong>Vehículo:</strong> ${escapeHtml(job.vehicle)}</p><p><strong>Pickup:</strong> ${escapeHtml(job.pickup)}</p><p><strong>Destino:</strong> ${escapeHtml(job.destination)}</p><p><strong>Estimado:</strong> ${escapeHtml(job.estimated_range || 'N/A')}</p><hr style="border:none;border-top:1px solid #E2E8F0;margin:16px 0;"/><a href="https://www.dgtowingllc.com/admin" style="display:inline-block;background:#1D4ED8;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none;font-weight:bold;font-size:13px;">Abrir en DG Towing CRM →</a></div></div>` : buildEmailHtml({ type, job, reviewLink }),
+  };
+  if (bcc && String(bcc).includes('@')) {
+    mailOptions.bcc = String(bcc).trim();
+  }
+
   try {
-    await transporter.sendMail({
-      from: `"DG Towing LLC" <${process.env.SMTP_USER || 'info@dgtowingllc.com'}>`,
-      replyTo: process.env.SMTP_USER || 'info@dgtowingllc.com',
-      to,
-      subject,
-      text: textFallback,
-      html: buildEmailHtml({ type, job, reviewLink }),
-    });
+    await transporter.sendMail(mailOptions);
     return res.status(200).json({ ok: true });
   } catch (err) {
     return res.status(500).json({ error: err.message });

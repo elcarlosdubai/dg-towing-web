@@ -64,3 +64,53 @@ CREATE POLICY "Authenticated users can delete jobs"
   FOR DELETE
   TO authenticated
   USING (true);
+
+-- ==========================================================
+-- TABLA DE LOGS DE ENVÍOS (Email & WhatsApp)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.dg_towing_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+  channel TEXT NOT NULL,
+  recipient TEXT NOT NULL,
+  template_type TEXT DEFAULT '',
+  status TEXT DEFAULT 'Enviado',
+  error_message TEXT DEFAULT ''
+);
+
+ALTER TABLE public.dg_towing_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can insert web logs" ON public.dg_towing_logs;
+CREATE POLICY "Public can insert web logs"
+  ON public.dg_towing_logs FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Authenticated users can view logs" ON public.dg_towing_logs;
+CREATE POLICY "Authenticated users can view logs"
+  ON public.dg_towing_logs FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can delete logs" ON public.dg_towing_logs;
+CREATE POLICY "Authenticated users can delete logs"
+  ON public.dg_towing_logs FOR DELETE TO authenticated USING (true);
+
+-- ==========================================================
+-- TABLA DE CONFIGURACIÓN (Copia BCC, Alerta Web, Google Review)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.dg_towing_settings (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  bcc_email TEXT DEFAULT '',
+  notify_email TEXT DEFAULT 'info@dgtowingllc.com',
+  google_review_url TEXT DEFAULT 'https://dgtowingllc.com',
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+INSERT INTO public.dg_towing_settings (id, bcc_email, notify_email, google_review_url)
+VALUES (1, '', 'info@dgtowingllc.com', 'https://dgtowingllc.com')
+ON CONFLICT (id) DO NOTHING;
+
+ALTER TABLE public.dg_towing_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users can manage settings" ON public.dg_towing_settings;
+CREATE POLICY "Authenticated users can manage settings"
+  ON public.dg_towing_settings FOR ALL TO authenticated
+  USING (true) WITH CHECK (true);

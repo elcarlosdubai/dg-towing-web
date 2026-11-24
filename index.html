@@ -828,6 +828,37 @@
           }),
           keepalive: true
         });
+
+        // Notify owner by email & log it (non-blocking)
+        const leadJob = {
+          customer_name: custName || 'Web Lead (' + channel.toUpperCase() + ')',
+          customer_phone: custPhone,
+          customer_email: custEmail,
+          vehicle: vehicleInfo,
+          pickup: pickup,
+          destination: destination,
+          estimated_range: lastEstimatedText
+        };
+        fetch('https://www.dgtowingllc.com/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'web_lead', job: leadJob }),
+          keepalive: true
+        });
+        fetch('https://iqnigpsrmfiiydxyietl.supabase.co/rest/v1/dg_towing_logs', {
+          method: 'POST',
+          headers: {
+            'apikey': 'sb_publishable_bQ8QtLiqktNlmpfBUzyDXg_gjn5JY2h',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            channel: 'EMAIL',
+            recipient: 'info@dgtowingllc.com',
+            template_type: 'Alerta Web Lead',
+            status: 'Enviado'
+          }),
+          keepalive: true
+        });
       } catch (e) {}
 
       if (channel === 'whatsapp') {

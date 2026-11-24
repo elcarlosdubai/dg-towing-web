@@ -78,6 +78,9 @@
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.453 3.484 1.328 5l-1.39 5.078 5.188-1.359c1.484.812 3.156 1.25 4.844 1.25 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.813 14.125c-.25.703-1.438 1.344-2 1.422-.516.078-1.172.109-1.891-.125-.438-.141-1-.328-1.719-.641-3.016-1.297-4.984-4.344-5.141-4.547-.141-.203-1.219-1.625-1.219-3.094 0-1.469.766-2.188 1.047-2.484.281-.297.609-.375.813-.375.203 0 .406 0 .578.016.188.016.438-.078.688.516.25.609.859 2.094.938 2.25.078.156.125.344.031.547-.094.203-.156.328-.313.5-.156.172-.328.391-.469.531-.156.156-.328.328-.141.641.188.313.844 1.391 1.813 2.25 1.25 1.109 2.297 1.453 2.609 1.609.313.156.5.125.688-.078.188-.203.797-.922 1.016-1.234.219-.313.422-.266.703-.156.281.109 1.813.859 2.125 1.016.313.156.516.234.594.359.078.125.078.734-.172 1.438z"/></svg>
             <span id="header-wa-text">WhatsApp</span>
           </button>
+          <button type="button" onclick="openSettingsModal()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-navy text-xs font-bold transition">
+            ⚙️ Config
+          </button>
           <button type="button" onclick="exportCSV()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-ice hover:bg-blue-100 text-royal text-xs font-bold transition">
             Excel
           </button>
@@ -97,6 +100,12 @@
         </button>
         <button type="button" onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
           👥 Clientes
+        </button>
+        <button type="button" onclick="switchTab('logs')" id="tab-logs" class="tab-btn px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
+          📜 Logs
+        </button>
+        <button type="button" onclick="openSettingsModal()" class="sm:hidden px-3.5 py-1.5 rounded-full bg-slate-100 text-navy text-xs font-bold shrink-0">
+          ⚙️ Config
         </button>
         <button type="button" onclick="openBaileysModal()" class="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#16A34A] text-white text-xs font-bold shrink-0">
           <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.453 3.484 1.328 5l-1.39 5.078 5.188-1.359c1.484.812 3.156 1.25 4.844 1.25 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.813 14.125c-.25.703-1.438 1.344-2 1.422-.516.078-1.172.109-1.891-.125-.438-.141-1-.328-1.719-.641-3.016-1.297-4.984-4.344-5.141-4.547-.141-.203-1.219-1.625-1.219-3.094 0-1.469.766-2.188 1.047-2.484.281-.297.609-.375.813-.375.203 0 .406 0 .578.016.188.016.438-.078.688.516.25.609.859 2.094.938 2.25.078.156.125.344.031.547-.094.203-.156.328-.313.5-.156.172-.328.391-.469.531-.156.156-.328.328-.141.641.188.313.844 1.391 1.813 2.25 1.25 1.109 2.297 1.453 2.609 1.609.313.156.5.125.688-.078.188-.203.797-.922 1.016-1.234.219-.313.422-.266.703-.156.281.109 1.813.859 2.125 1.016.313.156.516.234.594.359.078.125.078.734-.172 1.438z"/></svg>
@@ -219,6 +228,28 @@
           </div>
           <div id="customers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
           <div id="customers-pagination" class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs"></div>
+        </section>
+      </div>
+
+      <!-- TAB 4: SEND LOGS (Email & WhatsApp) -->
+      <div id="view-logs" class="hidden space-y-5">
+        <section class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div>
+              <h2 class="font-bold text-lg text-navy">Historial de Envíos (Logs)</h2>
+              <p class="text-xs text-slate-500">Registro automático de todos los Emails y WhatsApp enviados</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="filter-log-channel" onchange="logsPage=1;renderLogs()" class="px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs font-semibold">
+                <option value="ALL">Todos los canales</option>
+                <option value="EMAIL">Solo Email</option>
+                <option value="WHATSAPP">Solo WhatsApp</option>
+              </select>
+              <button type="button" onclick="fetchLogs()" class="px-3.5 py-2 rounded-xl bg-royal text-white text-xs font-bold">Actualizar</button>
+            </div>
+          </div>
+          <div id="logs-list" class="space-y-2.5"></div>
+          <div id="logs-pagination" class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs"></div>
         </section>
       </div>
 
@@ -354,7 +385,42 @@
     </div>
   </div>
 
-  <!-- MODAL: CHOOSE MESSAGE TEMPLATE (Quote / En Route / Thank You + Review) -->
+  <!-- MODAL: SETTINGS (BCC Email, Notify Email, Google Review URL) -->
+  <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-lg text-navy">⚙️ Configuración</h3>
+          <p class="text-xs text-slate-500">Copia oculta de correos y enlaces</p>
+        </div>
+        <button type="button" onclick="closeSettingsModal()" class="w-8 h-8 rounded-full bg-slate-100 text-navy font-bold text-sm">✕</button>
+      </div>
+
+      <form id="settings-form" class="space-y-3">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Email para Copia de Todos los Correos (BCC)</label>
+          <input type="email" id="set-bcc" placeholder="tu-correo@gmail.com" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+          <p class="text-[11px] text-slate-400 mt-1">Cada correo enviado a un cliente mandará una copia oculta aquí.</p>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Email de Alertas (Formulario Web)</label>
+          <input type="email" id="set-notify" placeholder="info@dgtowingllc.com" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Link Oficial de Google Reviews</label>
+          <input type="url" id="set-review" placeholder="https://g.page/r/.../review" class="w-full px-3.5 py-2.5 rounded-xl bg-ice border border-slate-200 text-sm focus:ring-2 focus:ring-royal focus:outline-none" />
+        </div>
+
+        <button type="submit" id="save-settings-btn" class="w-full py-3 rounded-xl bg-royal hover:bg-blue-800 text-white font-bold text-sm shadow transition">
+          Guardar Configuración
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CHOOSE MESSAGE TEMPLATE (Quote / Thank You + Review) -->
   <div id="tpl-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -433,8 +499,11 @@
     let accessToken = localStorage.getItem('dg_access_token') || '';
     let currentUserEmail = localStorage.getItem('dg_user_email') || '';
     let allJobs = [];
+    let allLogs = [];
+    let appSettings = { bcc_email: '', notify_email: 'info@dgtowingllc.com', google_review_url: 'https://dgtowingllc.com' };
     let ridesPage = 1;
     let customersPage = 1;
+    let logsPage = 1;
     const PAGE_SIZE = 10;
 
     const ctCoords = {
@@ -459,7 +528,7 @@
     };
 
     function switchTab(tab) {
-      ['dashboard', 'rides', 'customers'].forEach(t => {
+      ['dashboard', 'rides', 'customers', 'logs'].forEach(t => {
         document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
         const btn = document.getElementById(`tab-${t}`);
         btn.classList.toggle('active', t === tab);
@@ -469,7 +538,16 @@
           btn.classList.remove('bg-white', 'text-slate-700');
         }
       });
+      if (tab === 'logs') fetchLogs();
     }
+
+    function openSettingsModal() {
+      document.getElementById('set-bcc').value = appSettings.bcc_email || '';
+      document.getElementById('set-notify').value = appSettings.notify_email || 'info@dgtowingllc.com';
+      document.getElementById('set-review').value = appSettings.google_review_url || '';
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
 
     let priceMode = 'mile';
 
@@ -644,7 +722,122 @@
       document.getElementById('app-view').classList.remove('hidden');
       document.getElementById('user-email-badge').textContent = currentUserEmail;
       checkWaStatusBadge();
-      await fetchJobs();
+      await Promise.all([fetchJobs(), fetchSettings(), fetchLogs()]);
+    }
+
+    async function fetchSettings() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_settings?id=eq.1&select=*`, {
+          headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` }
+        });
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length) {
+          appSettings = rows[0];
+          if (appSettings.google_review_url) {
+            localStorage.setItem('dg_google_review_url', appSettings.google_review_url);
+          }
+        }
+      } catch (e) {}
+    }
+
+    document.getElementById('settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('save-settings-btn');
+      btn.textContent = 'Guardando...';
+      const payload = {
+        bcc_email: document.getElementById('set-bcc').value.trim(),
+        notify_email: document.getElementById('set-notify').value.trim() || 'info@dgtowingllc.com',
+        google_review_url: document.getElementById('set-review').value.trim() || 'https://dgtowingllc.com',
+        updated_at: new Date().toISOString()
+      };
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_settings?id=eq.1`, {
+          method: 'PATCH',
+          headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          appSettings = { ...appSettings, ...payload };
+          localStorage.setItem('dg_google_review_url', payload.google_review_url);
+          closeSettingsModal();
+          alert('✓ Configuración guardada');
+        } else {
+          alert('Asegúrate de haber ejecutado el SQL nuevo en Supabase para dg_towing_settings.');
+        }
+      } catch (e) {
+        alert('Error guardando configuración');
+      } finally {
+        btn.textContent = 'Guardar Configuración';
+      }
+    });
+
+    async function fetchLogs() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_logs?select=*&order=created_at.desc`, {
+          headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (res.ok) {
+          allLogs = await res.json();
+          renderLogs();
+        }
+      } catch (e) {}
+    }
+
+    async function writeLog(channel, recipient, templateType, status, errorMsg = '') {
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/dg_towing_logs`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel,
+            recipient,
+            template_type: templateType,
+            status,
+            error_message: errorMsg
+          })
+        });
+        await fetchLogs();
+      } catch (e) {}
+    }
+
+    function goLogsPage(p) { logsPage = p; renderLogs(); }
+
+    function renderLogs() {
+      const list = document.getElementById('logs-list');
+      const pagEl = document.getElementById('logs-pagination');
+      if (!list) return;
+      const filter = document.getElementById('filter-log-channel').value;
+      const filtered = allLogs.filter(l => filter === 'ALL' || l.channel === filter);
+      const logPageSize = 15;
+      const totalPages = Math.max(1, Math.ceil(filtered.length / logPageSize));
+      if (logsPage > totalPages) logsPage = totalPages;
+      const paged = filtered.slice((logsPage - 1) * logPageSize, logsPage * logPageSize);
+
+      if (!paged.length) {
+        list.innerHTML = '<p class="text-sm text-slate-500 py-8 text-center">No hay logs registrados todavía.</p>';
+        pagEl.innerHTML = '';
+        return;
+      }
+
+      list.innerHTML = paged.map(l => {
+        const date = new Date(l.created_at).toLocaleString('es-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const chColor = l.channel === 'EMAIL' ? 'bg-ice text-royal' : 'bg-emerald-50 text-emerald-700';
+        const stColor = l.status === 'Enviado' ? 'text-emerald-600' : 'text-red-600';
+        return `
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full font-bold ${chColor}">${l.channel}</span>
+              <span class="font-bold text-navy">${l.recipient}</span>
+              <span class="text-slate-500">• ${l.template_type || 'Mensaje'}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-bold ${stColor}">${l.status}${l.error_message ? ` (${l.error_message})` : ''}</span>
+              <span class="text-slate-400">${date}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      pagEl.innerHTML = paginationHTML(filtered.length, logsPage, logPageSize, 'goLogsPage');
     }
 
     async function checkWaStatusBadge() {
@@ -920,21 +1113,25 @@
         }
         const btn = document.getElementById('tpl-send-email');
         if (btn) { btn.textContent = 'Enviando Email...'; btn.disabled = true; }
-        const reviewLink = document.getElementById('google-review-url').value.trim() || 'https://dgtowingllc.com';
+        const reviewLink = document.getElementById('google-review-url').value.trim() || appSettings.google_review_url || 'https://dgtowingllc.com';
         try {
           const res = await fetch('https://www.dgtowingllc.com/api/send-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to: toEmail, type: activeTplType, job: activeTplJob, reviewLink })
+            body: JSON.stringify({ to: toEmail, bcc: appSettings.bcc_email || '', type: activeTplType, job: activeTplJob, reviewLink })
           });
           const data = await res.json();
           if (res.ok && data.ok) {
+            await writeLog('EMAIL', toEmail, activeTplType === 'quote' ? 'Cotización' : 'Gracias/Review', 'Enviado');
             alert(`✓ Email HTML enviado a ${toEmail}`);
             closeTplModal();
             return;
           }
+          await writeLog('EMAIL', toEmail, activeTplType === 'quote' ? 'Cotización' : 'Gracias/Review', 'Error', data.error || 'Fallo SMTP');
           alert(data.error || 'No se pudo enviar vía API, abriendo app de correo...');
-        } catch (e) {} finally {
+        } catch (e) {
+          await writeLog('EMAIL', toEmail, activeTplType, 'Error', e.message);
+        } finally {
           if (btn) { btn.textContent = 'Enviar por Email'; btn.disabled = false; }
         }
         const subject = encodeURIComponent(`DG Towing LLC — ${activeTplJob.vehicle}`);
@@ -958,7 +1155,15 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ number: `1${phone}`, message: msg })
           });
-          if (res.ok) { alert('✓ Mensaje enviado por WhatsApp'); closeTplModal(); return; }
+          if (res.ok) {
+            await writeLog('WHATSAPP', `1${phone}`, activeTplType === 'quote' ? 'Cotización' : 'Gracias/Review', 'Enviado');
+            alert('✓ Mensaje enviado por WhatsApp');
+            closeTplModal();
+            return;
+          } else {
+            const d = await res.json().catch(() => ({}));
+            await writeLog('WHATSAPP', `1${phone}`, activeTplType, 'Error', d.error || 'Error Baileys');
+          }
         }
       } catch (e) {} finally {
         if (waBtn) { waBtn.textContent = 'Enviar por WhatsApp'; waBtn.disabled = false; }
