@@ -543,10 +543,19 @@
       const val = document.getElementById(fieldId).value.trim() || 'Waterbury, CT';
       window.open(`https://maps.google.com/?q=${encodeURIComponent(val)}`, '_blank');
     }
+    let waPollTimer = null;
+
     function openBaileysModal() {
       document.getElementById('baileys-url').value = localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com';
       document.getElementById('baileys-modal').classList.remove('hidden');
       connectBaileysQR();
+      if (waPollTimer) clearInterval(waPollTimer);
+      waPollTimer = setInterval(connectBaileysQR, 3000);
+    }
+
+    function closeBaileysModal() {
+      document.getElementById('baileys-modal').classList.add('hidden');
+      if (waPollTimer) { clearInterval(waPollTimer); waPollTimer = null; }
     }
     function closeBaileysModal() { document.getElementById('baileys-modal').classList.add('hidden'); }
 
@@ -830,22 +839,79 @@
       const customUrl = document.getElementById('baileys-url').value.trim().replace(/\/$/, '');
       const box = document.getElementById('baileys-qr-box');
       if (customUrl) localStorage.setItem('dg_baileys_url', customUrl);
-      box.innerHTML = '<p class="text-xs text-royal font-semibold">Conectando con WhatsApp...</p>';
       try {
         const q = customUrl && !customUrl.includes('wa.dgtowingllc.com') ? `&baseUrl=${encodeURIComponent(customUrl)}` : '';
         const res = await fetch(`/api/wa?action=qr${q}`);
         const data = await res.json();
         if (data.connected) {
-          box.innerHTML = `<div class="space-y-1"><p class="text-sm font-bold text-emerald-600">✓ WhatsApp Conectado</p><p class="text-xs text-slate-500">Línea activa: <strong>${data.line || 'Conectada'}</strong></p></div>`;
+          if (waPollTimer) { clearInterval(waPollTimer); waPollTimer = null; }
+          box.innerHTML = `
+            <div class="w-full space-y-4 text-left">
+              <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2">
+                <div>
+                  <p class="text-sm font-bold text-emerald-700">✓ WhatsApp Conectado</p>
+                  <p class="text-xs text-emerald-600">Línea activa: <strong>${data.line || 'Conectada'}</strong></p>
+                </div>
+                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-white border border-slate-200 space-y-2.5">
+                <p class="text-xs font-bold text-navy">Enviar Mensaje de Prueba</p>
+                <input type="tel" id="wa-test-phone" oninput="formatPhoneDash(this)" maxlength="12" placeholder="Tel destino (ej. 347-323-3895)" class="w-full px-3 py-2 rounded-lg bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+                <input type="text" id="wa-test-msg" value="Hola! Prueba de conexión desde DG Towing LLC." class="w-full px-3 py-2 rounded-lg bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+                <button type="button" id="wa-test-btn" onclick="sendTestWA()" class="w-full py-2.5 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
+                  Enviar Prueba por WhatsApp
+                </button>
+                <p id="wa-test-status" class="hidden text-xs font-semibold text-center"></p>
+              </div>
+
+              <button type="button" onclick="closeBaileysModal()" class="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition">
+                Cerrar / Desconectar Vista
+              </button>
+            </div>
+          `;
           checkWaStatusBadge();
         } else if (data.qrImage || data.qr) {
           const src = data.qrImage || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr)}`;
           box.innerHTML = `<img src="${src}" alt="Baileys QR" class="w-48 h-48 mx-auto rounded-xl border border-slate-200 p-1 bg-white" /><p class="text-[11px] text-slate-600 mt-2 font-medium">Abre WhatsApp → Dispositivos vinculados → Escanea este QR</p>`;
         } else {
-          box.innerHTML = '<p class="text-xs text-slate-600">Generando QR, presiona "Actualizar QR / Estado" en 3 segundos...</p>';
+          box.innerHTML = '<p class="text-xs text-slate-600">Generando QR, espera 3 segundos...</p>';
         }
       } catch (e) {
         box.innerHTML = '<p class="text-xs text-red-600">No se pudo conectar con el servidor de WhatsApp.</p>';
+      }
+    }
+
+    async function sendTestWA() {
+      const phone = (document.getElementById('wa-test-phone').value || '').replace(/\D/g, '');
+      const msg = document.getElementById('wa-test-msg').value.trim();
+      const statusEl = document.getElementById('wa-test-status');
+      const btn = document.getElementById('wa-test-btn');
+      if (!phone || !msg) { alert('Ingresa teléfono y mensaje.'); return; }
+
+      btn.textContent = 'Enviando (simulando escritura)...';
+      statusEl.classList.add('hidden');
+      try {
+        const res = await fetch('/api/wa?action=send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number: `1${phone}`, message: msg })
+        });
+        const data = await res.json();
+        statusEl.classList.remove('hidden');
+        if (res.ok && data.ok) {
+          statusEl.className = 'text-xs font-bold text-center text-emerald-600';
+          statusEl.textContent = '✓ Mensaje de prueba enviado correctamente';
+        } else {
+          statusEl.className = 'text-xs font-bold text-center text-red-600';
+          statusEl.textContent = data.error || 'Error enviando mensaje';
+        }
+      } catch (e) {
+        statusEl.classList.remove('hidden');
+        statusEl.className = 'text-xs font-bold text-center text-red-600';
+        statusEl.textContent = 'Error de conexión al enviar';
+      } finally {
+        btn.textContent = 'Enviar Prueba por WhatsApp';
       }
     }
 
