@@ -47,43 +47,49 @@
   <!-- ADMIN DASHBOARD VIEW -->
   <div id="app-view" class="hidden min-h-screen flex flex-col">
 
-    <!-- Responsive Top Navbar -->
+    <!-- Responsive Top Navbar (Clean on 320px+ phones) -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <img src="../logo.jpeg" alt="DG Towing LLC" class="h-10 w-auto object-contain shrink-0" />
-          <div class="truncate">
-            <span class="font-bold text-sm sm:text-base text-navy block leading-none">DG Towing CRM</span>
-            <span id="user-email-badge" class="text-[11px] text-slate-500 truncate block"></span>
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <img src="../logo.jpeg" alt="DG Towing LLC" class="h-9 sm:h-10 w-auto object-contain shrink-0" />
+          <div class="min-w-0">
+            <span class="font-bold text-sm sm:text-base text-navy block leading-none truncate">DG Towing CRM</span>
+            <span id="user-email-badge" class="hidden sm:block text-[11px] text-slate-500 truncate mt-0.5"></span>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <button type="button" onclick="openJobModal()" class="px-3 sm:px-4 py-2 rounded-full bg-royal hover:bg-blue-800 text-white text-xs font-bold shadow-sm transition">
+          <button type="button" onclick="openJobModal()" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-royal hover:bg-blue-800 text-white text-xs font-bold shadow-sm transition">
             + Agregar
           </button>
-          <button type="button" onclick="openBaileysModal()" class="px-3 py-2 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
+          <button type="button" onclick="openBaileysModal()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
             WA QR
           </button>
           <button type="button" onclick="exportCSV()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-ice hover:bg-blue-100 text-royal text-xs font-bold transition">
             Excel
           </button>
-          <button type="button" onclick="logout()" class="px-3 py-2 rounded-full bg-navy hover:bg-slate-800 text-white text-xs font-semibold transition">
+          <button type="button" onclick="logout()" class="px-3 py-1.5 sm:py-2 rounded-full bg-navy hover:bg-slate-800 text-white text-xs font-semibold transition">
             Salir
           </button>
         </div>
       </div>
 
       <!-- Responsive Navigation Tabs -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto">
-        <button type="button" onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active px-4 py-1.5 rounded-full border border-slate-200 text-xs font-bold shrink-0 transition">
-          📊 Resumen &amp; Gráficos
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto">
+        <button type="button" onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active px-3.5 py-1.5 rounded-full border border-slate-200 text-xs font-bold shrink-0 transition">
+          📊 Resumen
         </button>
-        <button type="button" onclick="switchTab('rides')" id="tab-rides" class="tab-btn px-4 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
-          🚗 Rides &amp; Cotizaciones
+        <button type="button" onclick="switchTab('rides')" id="tab-rides" class="tab-btn px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
+          🚗 Rides
         </button>
-        <button type="button" onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-4 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
-          👥 Todos los Clientes
+        <button type="button" onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
+          👥 Clientes
+        </button>
+        <button type="button" onclick="openBaileysModal()" class="sm:hidden px-3.5 py-1.5 rounded-full bg-[#16A34A] text-white text-xs font-bold shrink-0">
+          WA QR
+        </button>
+        <button type="button" onclick="exportCSV()" class="sm:hidden px-3.5 py-1.5 rounded-full bg-ice text-royal text-xs font-bold shrink-0">
+          Excel
         </button>
       </div>
     </header>
@@ -172,8 +178,8 @@
               <p class="text-xs text-slate-500">Filtra, edita precio o envía recibo por WhatsApp / Email</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <input type="text" id="search-input" oninput="renderJobs()" placeholder="Buscar nombre, tel, carro..." class="w-full sm:w-52 px-3.5 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
-              <select id="filter-status" onchange="renderJobs()" class="w-full sm:w-auto px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs font-semibold">
+              <input type="text" id="search-input" oninput="ridesPage=1;renderJobs()" placeholder="Buscar nombre, tel, carro..." class="w-full sm:w-52 px-3.5 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+              <select id="filter-status" onchange="ridesPage=1;renderJobs()" class="w-full sm:w-auto px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs font-semibold">
                 <option value="ALL">Todos los estados</option>
                 <option value="Quote">Cotizaciones Web</option>
                 <option value="Pending">Pendientes</option>
@@ -183,6 +189,7 @@
             </div>
           </div>
           <div id="jobs-list" class="space-y-3"></div>
+          <div id="rides-pagination" class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs"></div>
         </section>
       </div>
 
@@ -194,9 +201,10 @@
               <h2 class="font-bold text-lg text-navy">Directorio de Clientes</h2>
               <p class="text-xs text-slate-500">Todos tus clientes agrupados con su historial y total gastado</p>
             </div>
-            <input type="text" id="search-customer" oninput="renderCustomers()" placeholder="Buscar cliente, teléfono o email..." class="w-full sm:w-64 px-3.5 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
+            <input type="text" id="search-customer" oninput="customersPage=1;renderCustomers()" placeholder="Buscar cliente, teléfono o email..." class="w-full sm:w-64 px-3.5 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
           </div>
           <div id="customers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          <div id="customers-pagination" class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs"></div>
         </section>
       </div>
 
@@ -316,6 +324,9 @@
     let currentUserEmail = localStorage.getItem('dg_user_email') || '';
     let isDemoMode = false;
     let allJobs = [];
+    let ridesPage = 1;
+    let customersPage = 1;
+    const PAGE_SIZE = 10;
 
     const ctCoords = {
       'waterbury': [41.5582, -73.0515],
@@ -686,15 +697,16 @@
       document.getElementById('stat-customers').textContent = uniqueCustomers.size;
       document.getElementById('stat-quotes').textContent = quotesCount;
 
-      // Render 7-Day Bar Chart
+      // Render 7-Day Bar Chart (compact labels for 320px+ screens)
       const maxDay = Math.max(100, ...last7.map(d => d.total));
       document.getElementById('weekly-chart').innerHTML = last7.map(d => {
         const hPct = Math.max(6, Math.round((d.total / maxDay) * 100));
+        const labelVal = d.total >= 1000 ? `$${(d.total / 1000).toFixed(1)}k` : (d.total > 0 ? `$${d.total}` : '');
         return `
-          <div class="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
-            <span class="text-[10px] font-bold text-navy">${d.total > 0 ? `$${d.total}` : ''}</span>
-            <div class="w-full max-w-[36px] rounded-t-xl ${d.total > 0 ? 'bg-royal' : 'bg-slate-100'} transition-all" style="height: ${hPct}%"></div>
-            <span class="text-[10px] font-semibold uppercase text-slate-500">${d.label}</span>
+          <div class="flex-1 min-w-0 flex flex-col items-center justify-end h-full gap-1">
+            <span class="text-[9px] sm:text-[10px] font-bold text-navy truncate">${labelVal}</span>
+            <div class="w-full max-w-[32px] rounded-t-lg sm:rounded-t-xl ${d.total > 0 ? 'bg-royal' : 'bg-slate-100'} transition-all" style="height: ${hPct}%"></div>
+            <span class="text-[9px] sm:text-[10px] font-semibold uppercase text-slate-500">${d.label}</span>
           </div>
         `;
       }).join('');
@@ -722,40 +734,64 @@
       const badgeColor = j.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' : j.status === 'Quote' ? 'bg-ice text-royal' : 'bg-amber-50 text-amber-700';
       return `
         <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div class="space-y-1">
-            <div class="flex flex-wrap items-center gap-2">
+          <div class="space-y-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${badgeColor}">${j.status}</span>
               <span class="font-bold text-sm text-navy">${j.customer_name || 'Web Lead'}</span>
               ${j.customer_phone ? `<a href="tel:${j.customer_phone}" class="text-xs font-semibold text-royal hover:underline">${j.customer_phone}</a>` : ''}
-              ${j.customer_email ? `<span class="text-xs text-slate-500">• ${j.customer_email}</span>` : ''}
+              ${j.customer_email ? `<span class="text-xs text-slate-500 break-all">• ${j.customer_email}</span>` : ''}
               <span class="text-[11px] text-slate-400">• ${date}</span>
             </div>
             <div class="text-xs font-semibold text-slate-700">${j.vehicle}</div>
-            <div class="text-xs text-slate-600">${j.pickup} → ${j.destination}</div>
+            <div class="text-xs text-slate-600 break-words">${j.pickup} → ${j.destination}</div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 shrink-0">
-            <button type="button" onclick="updateJobPrice('${j.id}')" class="font-bold text-base text-navy hover:text-royal mr-1 underline decoration-dotted">$${j.total_price || 0}</button>
-            <select onchange="updateJobPayment('${j.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
-              <option value="Pending" ${j.payment_method==='Pending'?'selected':''}>Pago...</option>
-              <option value="Cash" ${j.payment_method==='Cash'?'selected':''}>Cash</option>
-              <option value="Zelle" ${j.payment_method==='Zelle'?'selected':''}>Zelle</option>
-              <option value="Apple Cash" ${j.payment_method==='Apple Cash'?'selected':''}>Apple Cash</option>
-              <option value="PayPal" ${j.payment_method==='PayPal'?'selected':''}>PayPal</option>
-            </select>
-            <select onchange="updateJobStatus('${j.id}', this.value)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
-              <option value="Quote" ${j.status==='Quote'?'selected':''}>Quote</option>
-              <option value="Pending" ${j.status==='Pending'?'selected':''}>Pending</option>
-              <option value="En Route" ${j.status==='En Route'?'selected':''}>En Route</option>
-              <option value="Completed" ${j.status==='Completed'?'selected':''}>Completed</option>
-            </select>
-            <button type="button" onclick='sendReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-[#16A34A] text-white text-xs font-bold">WA</button>
-            <button type="button" onclick='sendEmailReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-royal text-white text-xs font-bold">Email</button>
-            <button type="button" onclick="deleteJob('${j.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold">✕</button>
+          <!-- Responsive Action Controls: Clean 2-row grid on mobile, inline flex on desktop -->
+          <div class="w-full lg:w-auto flex flex-col sm:flex-row sm:items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200/70 shrink-0">
+            <div class="grid grid-cols-2 sm:flex items-center gap-2">
+              <select onchange="updateJobPayment('${j.id}', this.value)" class="w-full sm:w-auto px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
+                <option value="Pending" ${j.payment_method==='Pending'?'selected':''}>Pago...</option>
+                <option value="Cash" ${j.payment_method==='Cash'?'selected':''}>Cash</option>
+                <option value="Zelle" ${j.payment_method==='Zelle'?'selected':''}>Zelle</option>
+                <option value="Apple Cash" ${j.payment_method==='Apple Cash'?'selected':''}>Apple Cash</option>
+                <option value="PayPal" ${j.payment_method==='PayPal'?'selected':''}>PayPal</option>
+              </select>
+              <select onchange="updateJobStatus('${j.id}', this.value)" class="w-full sm:w-auto px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold">
+                <option value="Quote" ${j.status==='Quote'?'selected':''}>Quote</option>
+                <option value="Pending" ${j.status==='Pending'?'selected':''}>Pending</option>
+                <option value="En Route" ${j.status==='En Route'?'selected':''}>En Route</option>
+                <option value="Completed" ${j.status==='Completed'?'selected':''}>Completed</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between sm:justify-end gap-2">
+              <button type="button" onclick="updateJobPrice('${j.id}')" class="font-bold text-base text-navy hover:text-royal underline decoration-dotted">$${j.total_price || 0}</button>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick='sendReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-[#16A34A] text-white text-xs font-bold">WA</button>
+                <button type="button" onclick='sendEmailReceipt(${JSON.stringify(j).replace(/'/g, "&#39;")})' class="px-2.5 py-1.5 rounded-lg bg-royal text-white text-xs font-bold">Email</button>
+                <button type="button" onclick="deleteJob('${j.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-bold">✕</button>
+              </div>
+            </div>
           </div>
         </div>
       `;
     }
+
+    function paginationHTML(totalItems, currentPage, pageSize, onPageFnName) {
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+      const end = Math.min(totalItems, currentPage * pageSize);
+      return `
+        <span class="text-slate-500 font-medium">Mostrando ${start}–${end} de ${totalItems}</span>
+        <div class="flex items-center gap-2">
+          <button type="button" ${currentPage <= 1 ? 'disabled' : ''} onclick="${onPageFnName}(${currentPage - 1})" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold disabled:opacity-40">← Anterior</button>
+          <span class="font-bold text-navy">${currentPage} / ${totalPages}</span>
+          <button type="button" ${currentPage >= totalPages ? 'disabled' : ''} onclick="${onPageFnName}(${currentPage + 1})" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold disabled:opacity-40">Siguiente →</button>
+        </div>
+      `;
+    }
+
+    function goRidesPage(p) { ridesPage = p; renderJobs(); }
+    function goCustomersPage(p) { customersPage = p; renderCustomers(); }
 
     function renderRecentRides() {
       const container = document.getElementById('recent-rides-list');
@@ -765,6 +801,7 @@
 
     function renderJobs() {
       const list = document.getElementById('jobs-list');
+      const pagEl = document.getElementById('rides-pagination');
       const search = document.getElementById('search-input').value.toLowerCase();
       const filter = document.getElementById('filter-status').value;
 
@@ -774,11 +811,17 @@
         return matchStatus && text.includes(search);
       });
 
-      list.innerHTML = filtered.length ? filtered.map(jobCardHTML).join('') : '<p class="text-sm text-slate-500 py-8 text-center">No hay registros que coincidan.</p>';
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (ridesPage > totalPages) ridesPage = totalPages;
+      const paged = filtered.slice((ridesPage - 1) * PAGE_SIZE, ridesPage * PAGE_SIZE);
+
+      list.innerHTML = paged.length ? paged.map(jobCardHTML).join('') : '<p class="text-sm text-slate-500 py-8 text-center">No hay registros que coincidan.</p>';
+      pagEl.innerHTML = paginationHTML(filtered.length, ridesPage, PAGE_SIZE, 'goRidesPage');
     }
 
     function renderCustomers() {
       const container = document.getElementById('customers-list');
+      const pagEl = document.getElementById('customers-pagination');
       const search = document.getElementById('search-customer').value.toLowerCase();
       const map = new Map();
 
@@ -801,13 +844,18 @@
       });
 
       const list = Array.from(map.values()).filter(c => `${c.name} ${c.phone} ${c.email} ${c.lastVehicle}`.toLowerCase().includes(search));
+      const custPageSize = 9;
+      const totalPages = Math.max(1, Math.ceil(list.length / custPageSize));
+      if (customersPage > totalPages) customersPage = totalPages;
+      const paged = list.slice((customersPage - 1) * custPageSize, customersPage * custPageSize);
 
-      if (!list.length) {
+      if (!paged.length) {
         container.innerHTML = '<p class="text-sm text-slate-500 py-8 text-center col-span-full">No se encontraron clientes.</p>';
+        pagEl.innerHTML = '';
         return;
       }
 
-      container.innerHTML = list.map(c => `
+      container.innerHTML = paged.map(c => `
         <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between gap-4">
           <div class="space-y-1">
             <div class="flex items-center justify-between gap-2">
@@ -815,7 +863,7 @@
               <span class="px-2.5 py-0.5 rounded-full bg-ice text-royal text-[11px] font-bold">${c.rides} ride${c.rides > 1 ? 's' : ''}</span>
             </div>
             ${c.phone ? `<a href="tel:${c.phone}" class="block text-xs font-semibold text-royal hover:underline">${c.phone}</a>` : '<span class="block text-xs text-slate-400">Sin teléfono</span>'}
-            ${c.email ? `<span class="block text-xs text-slate-500">${c.email}</span>` : ''}
+            ${c.email ? `<span class="block text-xs text-slate-500 break-all">${c.email}</span>` : ''}
             <span class="block text-xs text-slate-600 pt-1">Último carro: <strong>${c.lastVehicle}</strong></span>
           </div>
 
@@ -828,6 +876,7 @@
           </div>
         </div>
       `).join('');
+      pagEl.innerHTML = paginationHTML(list.length, customersPage, custPageSize, 'goCustomersPage');
     }
 
     function exportCSV() {
