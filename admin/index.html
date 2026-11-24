@@ -78,8 +78,9 @@
               </div>
             </button>
           </div>
-          <button type="button" onclick="openBaileysModal()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
-            WA QR
+          <button type="button" onclick="openBaileysModal()" id="header-wa-btn" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold transition">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.453 3.484 1.328 5l-1.39 5.078 5.188-1.359c1.484.812 3.156 1.25 4.844 1.25 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.813 14.125c-.25.703-1.438 1.344-2 1.422-.516.078-1.172.109-1.891-.125-.438-.141-1-.328-1.719-.641-3.016-1.297-4.984-4.344-5.141-4.547-.141-.203-1.219-1.625-1.219-3.094 0-1.469.766-2.188 1.047-2.484.281-.297.609-.375.813-.375.203 0 .406 0 .578.016.188.016.438-.078.688.516.25.609.859 2.094.938 2.25.078.156.125.344.031.547-.094.203-.156.328-.313.5-.156.172-.328.391-.469.531-.156.156-.328.328-.141.641.188.313.844 1.391 1.813 2.25 1.25 1.109 2.297 1.453 2.609 1.609.313.156.5.125.688-.078.188-.203.797-.922 1.016-1.234.219-.313.422-.266.703-.156.281.109 1.813.859 2.125 1.016.313.156.516.234.594.359.078.125.078.734-.172 1.438z"/></svg>
+            <span id="header-wa-text">WhatsApp</span>
           </button>
           <button type="button" onclick="exportCSV()" class="hidden sm:inline-block px-3 py-2 rounded-full bg-ice hover:bg-blue-100 text-royal text-xs font-bold transition">
             Excel
@@ -101,8 +102,9 @@
         <button type="button" onclick="switchTab('customers')" id="tab-customers" class="tab-btn px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 text-xs font-bold shrink-0 transition">
           👥 Clientes
         </button>
-        <button type="button" onclick="openBaileysModal()" class="sm:hidden px-3.5 py-1.5 rounded-full bg-[#16A34A] text-white text-xs font-bold shrink-0">
-          WA QR
+        <button type="button" onclick="openBaileysModal()" class="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#16A34A] text-white text-xs font-bold shrink-0">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.453 3.484 1.328 5l-1.39 5.078 5.188-1.359c1.484.812 3.156 1.25 4.844 1.25 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.813 14.125c-.25.703-1.438 1.344-2 1.422-.516.078-1.172.109-1.891-.125-.438-.141-1-.328-1.719-.641-3.016-1.297-4.984-4.344-5.141-4.547-.141-.203-1.219-1.625-1.219-3.094 0-1.469.766-2.188 1.047-2.484.281-.297.609-.375.813-.375.203 0 .406 0 .578.016.188.016.438-.078.688.516.25.609.859 2.094.938 2.25.078.156.125.344.031.547-.094.203-.156.328-.313.5-.156.172-.328.391-.469.531-.156.156-.328.328-.141.641.188.313.844 1.391 1.813 2.25 1.25 1.109 2.297 1.453 2.609 1.609.313.156.5.125.688-.078.188-.203.797-.922 1.016-1.234.219-.313.422-.266.703-.156.281.109 1.813.859 2.125 1.016.313.156.516.234.594.359.078.125.078.734-.172 1.438z"/></svg>
+          <span>WhatsApp</span>
         </button>
         <button type="button" onclick="exportCSV()" class="sm:hidden px-3.5 py-1.5 rounded-full bg-ice text-royal text-xs font-bold shrink-0">
           Excel
@@ -390,27 +392,32 @@
     </div>
   </div>
 
-  <!-- MODAL: BAILEYS WHATSAPP QR -->
+  <!-- MODAL: WHATSAPP CONNECTION (QR AUTO-LOAD) -->
   <div id="baileys-modal" class="hidden fixed inset-0 z-50 bg-navy/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div>
-          <h3 class="font-bold text-lg text-navy">WhatsApp Baileys (QR)</h3>
-          <p class="text-xs text-slate-500">Conecta tu servidor Node.js de Baileys</p>
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-[#25D366] text-white flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.453 3.484 1.328 5l-1.39 5.078 5.188-1.359c1.484.812 3.156 1.25 4.844 1.25 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.813 14.125c-.25.703-1.438 1.344-2 1.422-.516.078-1.172.109-1.891-.125-.438-.141-1-.328-1.719-.641-3.016-1.297-4.984-4.344-5.141-4.547-.141-.203-1.219-1.625-1.219-3.094 0-1.469.766-2.188 1.047-2.484.281-.297.609-.375.813-.375.203 0 .406 0 .578.016.188.016.438-.078.688.516.25.609.859 2.094.938 2.25.078.156.125.344.031.547-.094.203-.156.328-.313.5-.156.172-.328.391-.469.531-.156.156-.328.328-.141.641.188.313.844 1.391 1.813 2.25 1.25 1.109 2.297 1.453 2.609 1.609.313.156.5.125.688-.078.188-.203.797-.922 1.016-1.234.219-.313.422-.266.703-.156.281.109 1.813.859 2.125 1.016.313.156.516.234.594.359.078.125.078.734-.172 1.438z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-navy">Conectar WhatsApp</h3>
+            <p class="text-xs text-slate-500">Escanea el QR con el teléfono de DG Towing</p>
+          </div>
         </div>
         <button type="button" onclick="closeBaileysModal()" class="w-8 h-8 rounded-full bg-slate-100 text-navy font-bold text-sm">✕</button>
       </div>
 
-      <div class="space-y-2">
-        <label class="block text-[11px] font-bold uppercase text-slate-500">URL Servidor Baileys</label>
-        <div class="flex gap-2">
-          <input type="url" id="baileys-url" placeholder="http://localhost:3001" class="flex-1 px-3 py-2 rounded-xl bg-ice border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-royal" />
-          <button type="button" onclick="connectBaileysQR()" class="px-3.5 py-2 rounded-xl bg-royal text-white text-xs font-bold">Cargar QR</button>
-        </div>
+      <div id="baileys-qr-box" class="rounded-2xl bg-slate-50 border border-slate-200 p-5 flex flex-col items-center justify-center text-center min-h-[220px]">
+        <p class="text-xs text-royal font-semibold">Cargando estado de WhatsApp...</p>
       </div>
 
-      <div id="baileys-qr-box" class="rounded-2xl bg-slate-50 border border-slate-200 p-5 flex flex-col items-center justify-center text-center min-h-[180px]">
-        <p class="text-xs text-slate-500">Pega la URL de tu servidor Baileys para escanear el código QR.<br/><br/>Sin servidor Baileys, los botones <strong>WA</strong> y <strong>Email</strong> siguen funcionando directo.</p>
+      <div class="flex items-center justify-between gap-2">
+        <button type="button" onclick="connectBaileysQR()" class="px-4 py-2 rounded-xl bg-royal text-white text-xs font-bold">Actualizar QR / Estado</button>
+        <details class="text-[11px] text-slate-500">
+          <summary class="cursor-pointer font-semibold">Servidor API</summary>
+          <input type="url" id="baileys-url" value="https://wa.dgtowingllc.com" class="mt-2 w-full px-2.5 py-1.5 rounded-lg bg-ice border border-slate-200 text-xs" />
+        </details>
       </div>
     </div>
   </div>
@@ -539,6 +546,7 @@
     function openBaileysModal() {
       document.getElementById('baileys-url').value = localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com';
       document.getElementById('baileys-modal').classList.remove('hidden');
+      connectBaileysQR();
     }
     function closeBaileysModal() { document.getElementById('baileys-modal').classList.add('hidden'); }
 
@@ -652,7 +660,21 @@
       document.getElementById('login-view').classList.add('hidden');
       document.getElementById('app-view').classList.remove('hidden');
       document.getElementById('user-email-badge').textContent = currentUserEmail;
+      checkWaStatusBadge();
       await fetchJobs();
+    }
+
+    async function checkWaStatusBadge() {
+      const url = (localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com').replace(/\/$/, '');
+      const textEl = document.getElementById('header-wa-text');
+      if (!textEl) return;
+      try {
+        const res = await fetch(`${url}/status`);
+        const data = await res.json();
+        textEl.textContent = data.connected ? `WhatsApp (${data.line || 'Online'})` : 'Conectar WhatsApp';
+      } catch (e) {
+        textEl.textContent = 'WhatsApp';
+      }
     }
 
     async function fetchJobs() {
@@ -810,17 +832,21 @@
       const box = document.getElementById('baileys-qr-box');
       if (!url) return;
       localStorage.setItem('dg_baileys_url', url);
-      box.innerHTML = '<p class="text-xs text-royal font-semibold">Conectando con Baileys...</p>';
+      box.innerHTML = '<p class="text-xs text-royal font-semibold">Conectando con WhatsApp...</p>';
       try {
         const res = await fetch(`${url}/qr`);
         const data = await res.json();
-        if (data.connected) box.innerHTML = '<p class="text-sm font-bold text-emerald-600">✓ WhatsApp Baileys Conectado</p>';
-        else if (data.qrImage || data.qr) {
+        if (data.connected) {
+          box.innerHTML = `<div class="space-y-1"><p class="text-sm font-bold text-emerald-600">✓ WhatsApp Conectado</p><p class="text-xs text-slate-500">Línea activa: <strong>${data.line || 'Conectada'}</strong></p></div>`;
+          checkWaStatusBadge();
+        } else if (data.qrImage || data.qr) {
           const src = data.qrImage || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr)}`;
-          box.innerHTML = `<img src="${src}" alt="Baileys QR" class="w-44 h-44 mx-auto rounded-xl" /><p class="text-[11px] text-slate-500 mt-2">Escanea con WhatsApp → Dispositivos vinculados</p>`;
-        } else box.innerHTML = '<p class="text-xs text-slate-600">Servidor respondió sin QR activo.</p>';
+          box.innerHTML = `<img src="${src}" alt="Baileys QR" class="w-48 h-48 mx-auto rounded-xl border border-slate-200 p-1 bg-white" /><p class="text-[11px] text-slate-600 mt-2 font-medium">Abre WhatsApp → Dispositivos vinculados → Escanea este QR</p>`;
+        } else {
+          box.innerHTML = '<p class="text-xs text-slate-600">Generando QR, presiona "Actualizar QR / Estado" en 3 segundos...</p>';
+        }
       } catch (e) {
-        box.innerHTML = '<p class="text-xs text-red-600">No se pudo conectar con esa URL de Baileys.</p>';
+        box.innerHTML = '<p class="text-xs text-red-600">No se pudo conectar con el servidor de WhatsApp.</p>';
       }
     }
 
@@ -896,17 +922,24 @@
         return;
       }
 
-      const baileysUrl = localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com';
-      if (baileysUrl && phone) {
-        try {
+      const baileysUrl = (localStorage.getItem('dg_baileys_url') || 'https://wa.dgtowingllc.com').replace(/\/$/, '');
+      try {
+        const stRes = await fetch(`${baileysUrl}/status`);
+        const st = await stRes.json();
+        if (!st.connected) {
+          closeTplModal();
+          openBaileysModal();
+          return;
+        }
+        if (phone) {
           const res = await fetch(`${baileysUrl}/send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ number: `1${phone}`, message: msg })
           });
-          if (res.ok) { alert('✓ Enviado por Baileys'); closeTplModal(); return; }
-        } catch (e) {}
-      }
+          if (res.ok) { alert('✓ Mensaje enviado por WhatsApp'); closeTplModal(); return; }
+        }
+      } catch (e) {}
       window.open(phone ? `https://wa.me/1${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
       closeTplModal();
     }
@@ -914,21 +947,28 @@
     function sendReceipt(job) { openTplModal(job, 'thanks'); }
     function sendEmailReceipt(job) { openTplModal(job, 'thanks'); }
 
+    function toLocalDateStr(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
     function updateStatsAndCharts() {
       const now = new Date();
-      const todayStr = now.toISOString().slice(0, 10);
-      const monthStr = now.toISOString().slice(0, 7);
+      const todayStr = toLocalDateStr(now);
+      const monthStr = todayStr.slice(0, 7);
 
       let todaySum = 0, monthSum = 0, completedCount = 0, quotesCount = 0, totalCompletedRev = 0;
       const pays = { 'Zelle': 0, 'Cash': 0, 'Apple Cash': 0, 'PayPal': 0 };
       const uniqueCustomers = new Set();
 
-      // Build last 7 days map
+      // Build last 7 days map in local timezone
       const last7 = [];
       for (let i = 6; i >= 0; i--) {
         const d = new Date(now.getTime() - i * 86400000);
         last7.push({
-          key: d.toISOString().slice(0, 10),
+          key: toLocalDateStr(d),
           label: d.toLocaleDateString('es-US', { weekday: 'short' }),
           total: 0
         });
@@ -941,9 +981,9 @@
           completedCount++;
           const price = Number(j.total_price) || 0;
           totalCompletedRev += price;
-          const dateKey = (j.created_at || '').slice(0, 10);
+          const dateKey = j.created_at ? toLocalDateStr(new Date(j.created_at)) : '';
           if (dateKey === todayStr) todaySum += price;
-          if ((j.created_at || '').startsWith(monthStr)) monthSum += price;
+          if (dateKey.startsWith(monthStr)) monthSum += price;
           if (pays[j.payment_method] !== undefined) pays[j.payment_method] += price;
           const dayObj = last7.find(d => d.key === dateKey);
           if (dayObj) dayObj.total += price;
