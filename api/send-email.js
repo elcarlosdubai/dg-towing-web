@@ -85,7 +85,7 @@ function buildEmailHtml({ type, job, reviewLink }) {
         </tr>
         <tr>
           <td style="background-color:#F8FAFC;padding:20px 32px;border-top:1px solid #E2E8F0;text-align:center;font-size:12px;color:#64748B;">
-            <strong style="color:#07101F;">DG Towing LLC</strong> • Waterbury, CT (CT • NY • NJ • MA • PA)<br/>
+            <strong style="color:#07101F;">DG Towing LLC</strong> • Waterbury, CT (CT • NY • MA • VT • NH • RI)<br/>
             24/7 Dispatch: <a href="tel:+13473233895" style="color:#1D4ED8;text-decoration:none;font-weight:600;">+1 (347) 323-3895</a> •
             <a href="mailto:info@dgtowingllc.com" style="color:#1D4ED8;text-decoration:none;">info@dgtowingllc.com</a><br/>
             <a href="https://dgtowingllc.com" style="color:#1D4ED8;text-decoration:none;font-weight:600;">https://dgtowingllc.com</a>
