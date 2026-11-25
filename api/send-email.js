@@ -58,7 +58,7 @@ function buildEmailHtml({ type, job, reviewLink }) {
         <tr>
           <td style="background-color:#07101F;padding:28px 32px;text-align:center;">
             <div style="display:inline-block;background-color:#ffffff;padding:8px 14px;border-radius:14px;margin-bottom:14px;">
-              <img src="https://dgtowingllc.com/logo.jpeg" alt="DG Towing LLC" style="height:48px;width:auto;display:block;" />
+              <img src="https://www.dgtowingllc.com/logotransparene.png" alt="DG Towing LLC" style="height:48px;width:auto;display:block;" />
             </div>
             <h1 style="margin:0;font-size:22px;font-weight:800;color:#ffffff;">${headerTitle}</h1>
             <p style="margin:6px 0 0;font-size:13px;color:#93C5FD;">24/7 Local &amp; Long Distance • Waterbury, CT</p>
